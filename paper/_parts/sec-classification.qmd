@@ -1,0 +1,69 @@
+
+# Other metadata
+
+- GNAP:
+  - `hints.{ui_locales|...}`
+- OAUTH:
+  - `response_type`
+
+`requested_token_type` (RFC 8693)
+: OPTIONAL \[REQUIRED in @draft-ietf-oauth-identity-assertion-authz-grant and @draft-ietf-oauth-transaction-tokens-07]. An identifier ... for the type of the requested security token.
+
+`audience` (RFC 8693)
+: RECOMMENDED \[REQUIRED in @draft-ietf-oauth-identity-assertion-authz-grant]. The logical name of the target service where the client intends to use the requested security token \[i.e., to request an access token bound to a specific audience]. This serves a purpose similar to the `resource` parameter but with the client providing a logical name for the target service ... Audience values used with a given authorization server must be unique within that server to ensure that they are properly interpreted as the intended type of value. Multiple audience parameters may be used to indicate that the issued token is intended to be used at the multiple audiences listed. The audience and resource parameters may be used together to indicate multiple target services with a mix of logical names and resource URIs. (RFC 7521: REQUIRED; A value that identifies the party intended to process the assertion \[e.g. the issuer identifier of the authorization server].) (@draft-ietf-oauth-transaction-tokens-07: Required; The value MUST be set to the Trust Domain name.) (@draft-ietf-oauth-identity-chaining: REQUIRED if `resource` is not set; Well known/logical name of authorization server for trust domain B.)
+
+### Callback / redirect URI
+
+- ODRL: (NA)
+- UMA: (NA)
+- GNAP: `interact.{start|finish}`
+- OAUTH: `redirect_uri`
+- DS: `callbackAddress`
+
+## Client state
+
+- ODRL: (NA)
+- UMA: `state`
+- GNAP: (NA)
+- OAUTH: `state`
+- DS: (NA)
+
+
+  `redirect_uri` (RFC 6749)
+  : DEPRECATED in favor of PKCE; \[was] REQUIRED if the `redirect_uri` parameter was included in the authorization request.
+
+  `code_verifier` (RFC 7636; RFC 9700)
+  : REQUIRED \[for PKCE]. The original code verifier string.
+
+
+## Type of request
+
+- ODRL: `Policy.profile`
+- UMA: (NA)
+- GNAP: (`access_token.access.type`)
+- OAUTH: (`authorization_details.type`)
+- DS: `offer.profile`
+
+## Unique identifier
+
+- ODRL: `Policy.uid`
+- UMA: (NA)
+- GNAP: (`access_token.label`)
+- OAUTH: (NA)
+- DS: `offer.@id`
+
+## Human-readable description
+
+- ODRL: `Policy[dc:description]`
+- UMA: (NA)
+- GNAP: (`hints.xyz`)
+- OAUTH: (NA)
+- DS: (NA)
+
+### Other authorization / offer details
+
+- ODRL: `permission[x].{type|...}`
+- UMA: NA
+- GNAP: `access_token.access[x].{type|...}`, `access_token.{flags|label}`
+- OAUTH: `authorization_details[x].{type|...}`
+- DS: `offer.{obligation|permission|prohibition}[x].xyz`

@@ -1,0 +1,21 @@
+{
+  "grant_type": "string",
+  "code": "string",
+  "code_verifier": "string",
+  "refresh_token": "string",
+  "client_secret": "string",
+  "client_id": "string",
+  "state": "string",
+  "scope": "string",
+  "resource": "string",
+  "authorization_details": [
+    {
+      "type": "string",
+      "identifier": "string",
+      "locations": "array[string]",
+      "datatypes": "array[string]",
+      "privileges": "array[string]",
+      "actions": "array[string]"
+    }
+  ]
+}

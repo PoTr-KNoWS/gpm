@@ -1,0 +1,526 @@
+# yaml-language-server: $schema=https://linkml.io/linkml-model/linkml_model/jsonschema/meta.schema.json
+
+###
+# This YAML document instantiates a `linkml:SchemaDefinition` -- a LinkML
+# data model/schema -- defining the structure and semantics of a unified
+# policy request.
+###
+
+###
+# Schema metadata & processing directives
+#
+id: https://ex.org/policymessage      # schema identifier
+name: UPN                             # unique name (within schema)
+version: 0.1.0                        # schema version
+metamodel_version: "1.8"              # LinkML metamodel version
+source_file: ""                       # name/uri of source file
+source_file_size: 0                   # size of source file
+source_file_date: "2020-01-31T12:00:00Z"                  # time of modification
+generation_date: "2020-01-31T12:00:00Z"                   # time of generation
+license: https://creativecommons.org/licenses/by-sa/4.0/  # license
+imports:                              # reuseable modules to load
+  - linkml:types
+default_curi_maps:                    # prefix maps to use
+  - semweb_context
+prefixes:                             # specific prefixes to parse
+  linkml: https://w3id.org/linkml/
+  upn: https://w3id.org/upn/
+emit_prefixes:                        # specific prefixes to serialize
+  - upn
+default_prefix: upn                   # default prefix (missing class/slot uris)
+default_range: uriorcurie             # default range (missing slot ranges)
+bindings:                             # restrictions of enum ranges
+  - binds_value_of: ""                # slot to bind
+    range: ""                         # enum range to bind to
+    obligation_level: REQUIRED        # REC.|OPT.|EXAMPLE|DISCOURAGED
+    pv_formula: CODE                  # part of code set: CODE|CURIE|URI|LABEL
+slot_names_unique: false              # don't adapt clashing slot names (if T)
+settings:                             # global string variables
+  float: "\\d+[\\.\\d+]"
+  unit: "\\S+"
+  email: "\\S+@\\S+{\\.\\w}+"
+# subsets: {}                           # subset definitions in the schema
+# types: {}                             # type definitions in the schema
+# enums: {}                             # enum definitions in the schema
+# classes: {}                           # class definitions in the schema
+# slots: {}                             # slot definitions in the schema
+
+###
+# Subset definitions
+#
+subsets: {}
+
+  ###
+  # Reference: common metadata and annotations
+  #
+  # ref_common:
+  #   title: ""                             # display label
+  #   keywords: []                          # keywords/tags (strings)
+  #   categories: []                        # categories (terms)
+  #   in_language: ""                       # primary language of source
+  #   description: ""                       # display description
+  #   alt_descriptions:                     # desc. from other sources
+  #     wikipedia: ""
+  #     other:
+  #       source: ""
+  #       description: ""
+  #   examples:                             # usage examples
+  #     - description: ""
+  #       value: ""
+  #       object: {}
+  #   aliases: []                           # simple aliases
+  #   structured_aliases: []                # annotated aliases
+  #   mappings: []                          # any comparative term
+  #   exact_mappings: []                    # exact matches (SKOS)
+  #   close_mappings: []                    # close matches (SKOS)
+  #   broad_mappings: []                    # broad matches (SKOS)
+  #   narrow_mappings: []                   # narrow matches (SKOS)
+  #   related_mappings: []                  # related matches (SKOS)
+  #   created_by: ""                        # author
+  #   modified_by: ""                       # modification author
+  #   contributors: []                      # contributors to the element
+  #   created_on: "2020-01-31T12:00:00Z"    # creation time
+  #   last_updated_on: "2020-01-31T12:00:00Z" # modification time
+  #   in_subset: []                         # definition sets the element is part of
+  #   from_schema: ""                       # schema that defines the element
+  #   imported_from: ""                     # derived from imports entry
+  #   source: ""                            # derived from related source
+  #   status: ""                            # status
+  #   rank: 0                               # priority/precedence (0 = highest)
+  #   annotations: {}                       # custom annotation properties
+  #   see_also: []                          # references to additional info
+  #   todos: []                             # issues that need resolution
+  #   notes: []                             # editorial notes (internal)
+  #   comments: []                          # other comments (external)
+  #   deprecated: ""                        # deprecation message
+  #   deprecated_element_has_exact_replacement: ""      # curie of certain alt.
+  #   deprecated_element_has_possible_replacement: ""   # curie of possible alt.
+
+  ###
+  # Reference: element metadata
+  #
+  # ref_element:
+  #   name: ""                              # unique name (within schema)
+  #   local_names:                          # name from other sources
+  #     wikipedia: ""
+  #     other:
+  #       local_name_value: ""
+  #       local_name_source: ""
+  #   definition_uri: ""                    # native URI in schema namespace
+  #   id_prefixes: []                       # recommended id prefixes (ordered)
+  #   id_prefixes_are_closed: false         # error on ids with other prefix
+  #   instantiates: []                      # enforced metamodels (?)
+  #   implements: []                        # referenced metamodels (?)
+  #   conforms_to: ""                       # referenced standard
+
+###
+# Class definitions
+#
+classes:
+
+  ###
+  # Reference: definition metadata (class, slot, enum)
+  #
+  # ref_definition:
+  #   is_a: ""                              # primary parent def. (inherits)
+  #   abstract: true                        # not directly instantiatable
+  #   mixin: true                           # def. is mixin/trait for other defs.
+  #   mixins: []                            # included mixins/traits
+  #   apply_to: []                          # defs. in which to inject this
+
+  ###
+  # Reference: class properties
+  #
+  # ref_class:
+  #   class_uri: upn:Policy
+  #   attributes: {}                  # slots defined inline
+  #   slots: []                       # slots defined separately
+  #   defining_slots: []              # slots that together imply this class
+  #   unique_keys:                    # slots that together identify an instance
+  #     name_and_age:
+  #       unique_key_name: name_and_age
+  #       unique_key_slots:
+  #         - full_name
+  #         - age
+  #       consider_nulls_inequal: true
+  #   id_prefixes: []                 # allowed instance namespaces (ordered)
+  #   tree_root: false                # is unique root of the serialization tree
+
+  ###
+  # LinkML Any class (because URIs cannot directly be used as range)
+  #
+  Any:
+    class_uri: linkml:Any
+    abstract: true
+
+  ###
+  # Policy Message model
+  #
+  Message:
+    slots:
+      - id
+      - type
+      - policy
+
+  ###
+  # Policy model
+  #
+  Policy:
+    slots:
+      - id
+      - type
+      - profile
+      - inherit
+      - rule
+      - permission
+      - prohibition
+      - obligation
+      - grant
+      - record
+      - conflict
+
+  Agreement:
+    is_a: Policy
+    slots:
+      - timestamp
+
+  Profile:
+
+  Permission:
+    is_a: Policy
+  Prohibition:
+    is_a: Policy
+  Duty:
+    is_a: Policy
+
+  RecordFormat:
+    slots:
+      - flags
+
+  Grant:
+    slots:
+      - format
+      - value
+
+  Credential:
+    slots:
+      - format
+      - value
+
+  Party:
+    slots:
+      - id
+      - type
+      - credential
+
+  Rule:
+    slots:
+      - id
+      - type
+      - assigner
+      - assignee
+      - operation
+      - condition
+      - resolution
+      - constraint
+
+  Operation:
+    slots:
+      - id
+      - type
+      - action
+      - target
+      - agent
+
+  Asset:
+    slots:
+      - id
+      - type
+      - partOf
+
+  Collection:
+    is_a: Asset
+    slots:
+      - source
+      - refinement
+
+  Action:
+    slots:
+      - id
+      - value
+      - refinement
+
+  Agent:
+    slots:
+      - id
+      - type
+      - key
+
+  Key:
+
+  Constraint:
+    slots:
+      - operator
+      - leftOperand
+      - rightOperand
+
+  LogicalConstraint:
+    slots:
+      - and
+      - andSequence
+      - or
+      - xone
+
+###
+# Attribute definitions
+#
+slots:
+
+  ###
+  # Reference: attribute properties
+  #
+  # ref_slot:
+  #   slot_uri: schema:telephone
+  #   in_subset: []                       # subset(s) of schema
+  #   exact_mappings:
+  #     - schema:alternateName
+  #   inverse: is_status_of               # inverse relation
+  #   inlined: false                      # inline in JSON (JSON-LD @embed)
+  #   inlined_as_list: true               # inline as list instead of object
+  #   abstract: true                      # no direct instantiations
+  #   required: true                      # error when absent
+  #   recommended: true                   # warn when absent
+  #   multivalued: true                   # allow lists/collections
+  #   minimum_cardinality: 0              # the min number of occurrences
+  #   maximum_cardinality: 20             # the max number of occurrences
+  #   exact_cardinality: 1                # the exact number of occurrences
+  #   transitive: false
+  #   symmetric: false
+  #   asymmetric: false
+  #   reflexive: false
+  #   locally_reflexive: false
+  #   irreflexive: false
+  #   identifier: true                    # slot value is primary identifier
+  #   designates_type: true               # slot value indicates entity type
+  #   domain: Any                         # slot domain
+  #   range: Any                          # slot range (or default_range)
+  #   values_from: []                     # allowed values
+  #   ifabsent: int(42)                   # default value if missing
+  #   string_serialization: "{a} {b}"     # generate string from other slots
+
+  id:
+    identifier: true
+
+  type:
+    designates_type: true
+
+  format:
+    designates_type: true
+
+  value:
+    slot_uri: rdf:value
+
+  flags:
+
+  policy:
+    domain: Message
+    range: Policy
+
+  profile:
+    domain: Policy
+    range: Profile
+
+  inherit:
+    domain: Policy
+    range: Policy
+    inlined: false
+
+  rule:
+    abstract: true
+    required: true
+    domain: Policy
+    range: Rule
+  permission:
+    is_a: rule
+    range: Permission
+  prohibition:
+    is_a: rule
+    range: Prohibition
+  obligation:
+    is_a: rule
+    range: Duty
+
+  timestamp:
+    domain: Agreement
+    range: datetime
+
+  conflict:
+    domain: Policy
+    range: ConflictTerm
+
+  record:
+    domain: Policy
+    range: RecordFormat
+
+  grant:
+    domain: Policy
+    range: Grant
+
+  credential:
+    domain: Party
+    range: Credential
+
+  assigner:
+    domain: Rule
+    range: Party
+
+  assignee:
+    domain: Rule
+    range: Party
+
+  operation:
+    domain: Rule
+    range: Operation
+
+  target:
+    domain: Operation
+    range: Asset
+
+  partOf:
+    domain: Asset
+    range: Collection
+
+  source:
+    domain: Asset
+    range: Collection
+
+  action:
+    domain: Operation
+    range: Action
+
+  agent:
+    domain: Operation
+    range: Agent
+
+  key:
+    range: Key
+
+  condition:
+    domain: Rule
+    range: Rule
+
+  resolution:
+    domain: Rule
+    range: Rule
+
+  refinement:
+    range: Constraint
+  constraint:
+    range: Constraint
+
+  operator:
+    domain: Constraint
+    range: Operator
+  leftOperand:
+    domain: Constraint
+    range: LeftOperand
+  rightOperand:
+    domain: Constraint
+    range: RightOperand
+
+  operand:
+    abstract: true
+    domain: LogicalConstraint
+    range: Constraint
+  and:
+    is_a: operand
+  andSequence:
+    is_a: operand
+  or:
+    is_a: operand
+  xone:
+    is_a: operand
+
+###
+# Type definitions
+#
+types: {}
+
+  ###
+  # Reference: type properties
+  #
+  # ref_type:
+  #   uri: ""                               # type uri
+  #   typeof: ""                            # parent type (inherits properties)
+  #   base: ""                              # type in python runtime
+  #   repr: ""                              # notation (if different from type)
+  #   implicit_prefix: ""                   # is uri after prefixing with this
+  #   pattern: "^[\\d\\(\\)\\-]+$"          # regex pattern of string value
+  #   structured_pattern:                   # elaborate pattern constraint
+  #     syntax: "{float} {unit.length}"     # regex from predefined types
+  #     interpolated: true                  #
+  #     partial_match: false                # allow partial matches
+  #   equals_string_in: []                  # one of these strings
+  #   equals_string: ""                     # exact string
+  #   equals_number: 0                      # exactly this number
+  #   minimum_value: 10                     # minimum of numerical value
+  #   maximum_value: 200                    # maximum of numerical value
+  #   unit:                                 # QUDT unit (for numerical value)
+  #     symbol: $                           # unit symbol
+  #     abbreviation: USD                   # textual abbreviation
+  #     descriptive_name: dollar            # full textual name
+  #     has_quantity_kind: PATO:0000119     # quantity ('height')
+  #     derivation: ""                      # how to derive from other unti(s)
+  #     exact_mappings:                     # mappings
+  #       - UO:0000015                      # - to ontologies
+  #       - uom:cm
+  #     ucum_code: cm                       # - to UCUM code
+  #     iec61360code: UAA375                # - to IEC61360 code
+  #   union_of: []                          # is union of other types
+  #   none_of: []                           # is everything but these expressions
+  #   exactly_one_of: []                    # is exactly one of these expressions
+  #   any_of: []                            # is any of these expressions
+  #   all_of: []                            # is combination of these expressions
+
+###
+# Enum definitions
+#
+enums:
+
+  ConflictTerm:
+
+  Operator:
+
+  LeftOperand:
+
+  RightOperand:
+
+  ###
+  # Reference: enum properties
+  #
+  # ref_enum:
+  #   enum_uri: ""                          # enum uri
+  #   code_set: ""                          # code set identifier
+  #   code_set_tag: ""                      # code set (version) tag
+  #   code_set_version: ""                  # code set version identifier
+  #   pv_formula: CODE                      # value type: CODE|CURIE|URI|LABEL
+  #   inherits: []                          # extends other enum def.
+  #   include: []                           # enum expressions to include
+  #   minus: []                             # enum expressions  to exclude
+  #   concepts: []                          # values as identifiers
+  #   matches:                              # get values from match query
+  #     source_ontology: ""                 # vocabulary to match from
+  #     identifier_pattern: ""              # regex to match identifiers
+  #   reachable_from:                       # get values from reachability query
+  #     source_ontology: ""                 # vocabulary to query
+  #     source_nodes: []                    # nodes to start from
+  #     relationship_types: []              # properties to traverse
+  #     is_direct: false                    # consider only direct related nodes
+  #     include_self: false                 # include start nodes themselves
+  #     traverse_up: false                  # reverse properties (ancestors)
+  #   permissible_values:                   # values to include
+  #     ref_value:
+  #       text: ""                          # actual permissible value
+  #       meaning: ""                       # meaning of the value (id)
+  #       description: ""                   # textual desc. (purpose, use ...)
+  #       unit: {}                          # unit of the value

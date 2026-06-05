@@ -1,0 +1,9 @@
+project:
+  title: Access requests
+
+format:
+  pdf: default
+  # typst: default
+  # html: default
+
+number-sections: true

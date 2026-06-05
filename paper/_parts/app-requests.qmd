@@ -1,0 +1,1309 @@
+
+## Overview of request specifications {#app-requests}
+
+
+<!--
+dcql_query              [OpenID4VP]
+client_metadata         [OpenID4VP]
+request_uri_method      [OpenID4VP]
+transaction_data        [OpenID4VP]
+response_uri            [OpenID4VP]
+verifier_info            [OpenID4VP]
+expected_origins        [OpenID4VP]
+wallet_nonce            [OpenID4VP]
+vp_token                [OpenID4VP]
+-->
+
+### OAuth 2.x
+
+With considerations from RFC 6819, RFC 9700 (BCP 240; and @draft-ietf-oauth-security-topics-update), RFC 8725 (BCP 225; and @draft-ietf-oauth-rfc8725bis), and @draft-ietf-oauth-browser-based-apps.
+
+
+#### Token request
+
+
+`client_id` (RFC 6749; @draft-ietf-oauth-client-id-metadata-document)
+: REQUIRED if a form of client authentication that relies on the parameter is used, or the `grant_type` requires identification of public clients. The client identifier issued to the client during the registration process. (RFC 7521: The `client_id` is unnecessary for client assertion authentication because the client is identified by the subject of the assertion ... If present, the value of the `client_id` parameter must identify the same client as is identified by the client assertion.) (@draft-ietf-oauth-client-id-metadata-document: This specification defines the client identifier as a URL with \[certain] restrictions.)
+
+`client_secret` (RFC 6749)
+: REQUIRED \[for client password authentication]. The client secret.
+
+`client_assertion_type` (RFC 7521)
+: REQUIRED \[for assertions as client authentication]. The format of the assertion as defined by the authorization server.  The value will be an absolute URI.
+
+`client_assertion` (RFC 7521; RFC 7523)
+: REQUIRED \[for assertions as client authentication]. The assertion being used to authenticate the client. Specific serialization of the assertion is defined by profile documents. (RFC 7523: The value of the `client_assertion` parameter contains a single JWT.)
+
+`assertion` (RFC 7521)
+: REQUIRED \[for assertions as authorization grants]. The assertion being used as an authorization grant. Specific serialization of the assertion is defined by profile documents. (RFC 7523: The value of the `client_assertion` parameter must contain a single JWT.)
+
+`grant_type` (RFC 6749)
+: REQUIRED. Identifier of the grant type the client uses with the particular token request ... \[which] determines the further parameters required or supported by the token request. (RFC 9201: The `grant_type parameter` is OPTIONAL in the context of this framework ... If that parameter is missing, the default value `client_credentials` is implied.)
+
+`code` (RFC 6749)
+: REQUIRED \[as authorization code grant]. The authorization code received from the authorization server.
+
+  `redirect_uri` (RFC 6749)
+  : DEPRECATED in favor of PKCE; \[was] REQUIRED if the `redirect_uri` parameter was included in the authorization request.
+
+  `code_verifier` (RFC 7636; RFC 9700)
+  : REQUIRED \[for PKCE]. The original code verifier string.
+
+`refresh_token` (RFC 6749)
+: REQUIRED \[as refresh token grant]. The refresh token issued to the client.
+
+`device_code` (RFC 8628)
+: REQUIRED \[as device authorization grant].  The device verification code, `device_code` from the device authorization response.
+
+`device_secret` (@openid-connect-native-sso-1_0)
+: OPTIONAL \[RECOMMENDED if the client requested the `device_sso` scope and the client already has a `device_secret` available]. The device secret contains relevant data to the device and the current users authenticated with the device. The device secret is completely opaque to the client ... The device secret may be shared between mobile apps that can obtain the value via the shared security mechanism (e.g. keychain) ... If `device_sso` is included in the set of requested scopes the authorization service must return the `device_secret`.
+
+`audience` (RFC 8693)
+: RECOMMENDED \[REQUIRED in @draft-ietf-oauth-identity-assertion-authz-grant]. The logical name of the target service where the client intends to use the requested security token \[i.e., to request an access token bound to a specific audience]. This serves a purpose similar to the `resource` parameter but with the client providing a logical name for the target service ... Audience values used with a given authorization server must be unique within that server to ensure that they are properly interpreted as the intended type of value. Multiple audience parameters may be used to indicate that the issued token is intended to be used at the multiple audiences listed. The audience and resource parameters may be used together to indicate multiple target services with a mix of logical names and resource URIs. (RFC 7521: REQUIRED; A value that identifies the party intended to process the assertion \[e.g. the issuer identifier of the authorization server].) (@draft-ietf-oauth-transaction-tokens-07: Required; The value MUST be set to the Trust Domain name.) (@draft-ietf-oauth-identity-chaining: REQUIRED if `resource` is not set; Well known/logical name of authorization server for trust domain B.)
+
+`requested_token_type` (RFC 8693)
+: OPTIONAL \[REQUIRED in @draft-ietf-oauth-identity-assertion-authz-grant and @draft-ietf-oauth-transaction-tokens-07]. An identifier ... for the type of the requested security token.
+
+`actor_token` (RFC 8693)
+: OPTIONAL \[with `actor_token_type`]. A security token that represents the identity of the acting party. Typically, this will be the party that is authorized to use the requested security token and act on behalf of the subject.
+
+`actor_token_type` (RFC 8693)
+: OPTIONAL \[with `actor_token_type`]. An identifier ... that indicates the type of the security token in the `actor_token` parameter.
+
+`subject_token` (RFC 8693)
+: REQUIRED. A security token that represents the identity of the party on behalf of whom the request is being made. Typically, the subject of this token will be the subject of the security token issued in response to the request.
+
+`subject_token_type` (RFC 8693)
+: REQUIRED. An identifier ... that indicates the type of the security token in the `subject_token` parameter.
+
+`delegation` (@draft-li-oauth-delegated-authorization)
+: REQUIRED \[for delegation token requests]. A `true` \[boolean] parameter ... to indicate that the client is requesting a delegation token instead of an OAuth 2.0 access token.
+
+`delegation_key` (@draft-li-oauth-delegated-authorization)
+: REQUIRED \[for delegation token requests]. The value of the delegation key \[e.g. a public key or shared secret].
+
+`request_context`
+: RECOMMENDED \[for transaction token requests]. A JSON object which represents the context of this transaction.
+
+`request_details`
+: RECOMMENDED \[for transaction token requests]. A JSON object which contains additional details about the request ... \[that] the requester would like to pass to the TTS \[e.g., API parameters, authorization criteria]. The TTS uses this data along with other information at its disposal to construct the `txct` JSON object (if required).
+
+`vtr` (RFC8485)
+
+`ace_profile` (RFC 9200
+: OPTIONAL. that \[the client] wants the AS to include the `ace_profile` parameter in the response. (Profiles define the communication protocol and the communication security protocol between the client and the RS. The security protocol must provide encryption, integrity, and replay protection, \[as well as] a binding between requests and responses, \[and] a list of allowed proof-of-possession methods if they support proof-of-possession tokens.)
+
+`req_cnf` (RFC 9201)
+: OPTIONAL. Information about the key the client would like to bind to the access token for proof of possession \[e.g., at most one `jwk`, `jwe`, `jku`, `COSE_Key`, `Encrypted_COSE_Key`].
+
+`cnonce` (RFC 9200)
+: REQUIRED if the RS provided a client-nonce in the AS Request Creation Hints message ... It must copy the value from the `cnonce` parameter in the AS Request Creation Hints.
+
+<!--
+  Token type identifiers are URIs ... \[used] as the value to describe the token in question [e.g., `requested_token_type`, `subject_token_type`, `actor_token_type`, `issued_token_type`] ... Token exchange can work with both tokens issued by other parties and tokens from the given authorization server. For the former, the token type identifier indicates the syntax (e.g., JWT or SAML 2.0) so the authorization server can parse it; for the latter, it indicates what the given authorization server issued it for (e.g., `access_token` or `refresh_token`).
+-->
+
+---
+
+`ticket` (UMA)
+: REQUIRED. The most recent permission ticket received by the client as part of this authorization process.
+
+`claim_token` (UMA)
+: OPTIONAL \[always with `claim_token_format`]. A string containing directly pushed claim information in the indicated format.
+
+`claim_token_format` (UMA)
+: OPTIONAL \[always with `claim_token`]. A string specifying the format of the claim token in which the client is directly pushing claims to the authorization server.
+
+`pct` (UMA)
+: OPTIONAL. The Persistent Claim Token \[previously returned by the authorization server] in order to optimize the process of seeking a new Requesting Party Token \[i.e., access token].
+
+`rpt` (UMA)
+: OPTIONAL. An existing Requesting Party Token \[i.e., access token] (which MAY be expired) \[which] gives the authorization server the option of upgrading that Requesting Party Token \[i.e., access token] instead of issuing a new one.
+
+
+### Common
+
+`scope`
+: OPTIONAL for OAuth, and for OpenID4VP; REQUIRED for some OAuth extensions, for OIDC (with value `openid`), and for OpenID4VP (when no `dcql_query`).
+: The scope of the access request: an \[additive, order-insensitive] list of space-delimited, case-sensitive strings ... defined by the authorization server ... to limit what types of resources or level of access a particular client can have ... \[It] must not include any scope not originally granted by the resource owner, and if omitted is treated as equal to the scope originally granted by the resource owner.
+<!-- : OpenID Wallets can discover which scope to request by inspecting a Credential Offer and/or Credential Issuer Metadata, and look for the `scope` parameter of the desired Credential Configuration. -->
+
+`resource`
+: OPTIONAL for OAuth's Resource Indicators (RFC 8707); REQUIRED for OAuth Identity Chaining (draft; when no `audience`); RECOMMENDED for OpenID4VCI (when `authorization_servers` in Credential Issuer Metadata).
+: Indicates the target service or resource to which access is being requested. Its value MUST be an absolute URI ... representing the identity of the resource ... Multiple resource parameters MAY be used to indicate that the requested token is intended to be used at multiple resources.
+URI of authorization server for trust domain B
+ to use a `resource` parameter whose value is the Credential Issuer's identifier value to allow the Authorization Server to differentiate Credential Issuers.)
+
+`authorization_details`
+: OPTIONAL for Rich Authorization Requests (RFC 9396), and for OpenID4VCI (with object of type `openid_credential`).
+: An array of objects. Each JSON object contains the data to specify the authorization requirements for a certain type of resource. The type of resource or access requirement is determined by the `type` field ... An `authorization_details` array MAY contain multiple entries of the same type.
+
+  `type`
+  : REQUIRED for all Rich Authorization Requests (RFC 9396).
+  : An identifier for the authorization details type as a string. The value of the type field determines the allowable contents of the object that contains it. The value is unique for the described API in the context of the AS.
+
+  `credential_configuration_id`
+  : REQUIRED for OpenID4VCI (authorization request).
+  : String specifying a unique identifier of the Credential being described in the `credential_configurations_supported` map in the Credential Issuer Metadata ... \[which] conveys the details of the requested Credential, such as the format and format-specific parameters.
+
+  `claims`
+  : OPTIONAL for OpenID4VCI (authorization request).
+  : A non-empty array of claims description objects ... The order of claims description objects in the claims array is used ... to determine the order in which the claims are displayed to the End-User ... When a repeated or contradictory claim description is provided, the processing MUST be aborted.
+
+    `path`
+    : REQUIRED for OpenID4VCI.
+    : A non-empty array representing a claims path pointer that specifies the path to a claim within the credential.
+
+    `mandatory`
+    : OPTIONAL for OpenID4VCI.
+    : Boolean which, when set to true, indicates that the Wallet will only accept a Credential that includes this claim. If set to false, the claim is not required to be included in the Credential ... \[In issuer metadata, it] indicates that the Credential Issuer will always include this claim in the issued Credential. If set to false, the claim is not included in the issued Credential if the wallet did not request the inclusion of the claim, and/or if the Credential Issuer chose to not include the claim ... If the mandatory parameter is omitted, the default value is false.
+<!--
+    `display`
+    : OPTIONAL for OpenID4VCI.
+    : A non-empty array of objects, where each object contains display properties of a certain claim in the Credential for a certain language.
+
+      `name`
+      : OPTIONAL for OpenID4VCI.
+      : String value of a display name for the claim.
+
+      `locale`
+      : OPTIONAL for OpenID4VCI.
+      : String value that identifies the language of this object, represented as language tag values defined in BCP47. There MUST be only one object for each language identifier. -->
+
+  `locations`
+  : OPTIONAL for all Rich Authorization Requests (RFC 9396).
+  : An array of strings representing the location of the resource or RS. These strings are typically URIs identifying the location of the RS. This field can allow a client to specify a particular RS. (OpenID4VCI: If the Credential Issuer metadata contains an `authorization_servers` parameter, the authorization detail's `locations` common data field MUST be set to the Credential Issuer Identifier value.)
+
+  `actions`
+  : OPTIONAL for all Rich Authorization Requests (RFC 9396).
+  : An array of strings representing the kinds of actions to be taken at the resource.
+
+  `datatypes`
+  : OPTIONAL for all Rich Authorization Requests (RFC 9396).
+  : An array of strings representing the kinds of data being requested from the resource.
+
+  `identifier`
+  : OPTIONAL for all Rich Authorization Requests (RFC 9396).
+  : A string identifier indicating a specific resource available at the API.
+
+  `privileges`
+  : OPTIONAL for all Rich Authorization Requests (RFC 9396).
+  : An array of strings representing the types or levels of privilege being requested at the resource.
+
+`claims`
+: OPTIONAL for OIDC (authorization requests).
+: This parameter is used to request that specific Claims be returned ... from the UserInfo Endpoint and/or in the ID Token. It is represented as a JSON object containing lists of Claims being requested from these locations. Properties of the Claims being requested may also be specified. The top-level members of the Claims request JSON object are \[the following] ... Other members may be present. (SEE ALSO BELOW: STD CLAIMS + VERIFIED CLAIMS)
+
+  `userinfo`
+  : OPTIONAL for OIDC (authorization requests).
+  : Requests that the listed individual Claims be returned from the UserInfo Endpoint. If present, the listed Claims are being requested to be added to any Claims that are being requested using scope values. If not present, the Claims being requested from the UserInfo Endpoint are only those requested using scope values. When the `userinfo` member is used, the request must also use a `response_type` value that results in an Access Token being issued to the Client for use at the UserInfo Endpoint.
+
+  `id_token`
+  : OPTIONAL for OIDC (authorization requests).
+  : Requests that the listed individual Claims be returned in the ID Token. If present, the listed Claims are being requested to be added to the default Claims in the ID Token. If not present, the default ID Token Claims are requested.
+
+  OIDC: The `userinfo` and `id_token` members of the claims request both are JSON objects with the names of the individual Claims being requested as the member names. The member values must be one of the following.
+
+    `null`
+    : Indicates that this Claim is being requested in the default manner. In particular, this is a Voluntary Claim.
+
+    *JSON Object*
+    : Used to provide additional information about the Claim being requested. This specification defines the following members ... Other members MAY be defined to provide additional information about the requested Claims.
+
+    **Note that when the claims request parameter is supported, the scope values that request Claims, as defined in Section 5.4, are effectively shorthand methods for requesting sets of individual Claims. For example, using the scope value openid email and a response_type that returns an Access Token is equivalent to using the scope value openid and the following request for individual Claims \[at the userinfo endpoint].**
+
+      `essential`
+      : OPTIONAL. If the value is true, this indicates that the Claim is an Essential Claim. If the value is false, it indicates that it is a Voluntary Claim. The default is false. By requesting Claims as Essential Claims, the RP indicates to the End-User that releasing these Claims will ensure a smooth authorization for the specific task requested by the End-User ... The Authorization Server must not generate an error when Claims are not returned ... unless otherwise specified in the description of the specific claim.
+
+      `value`
+      : OPTIONAL. Requests that the Claim be returned with a particular value. The value of the value member must be a valid value for the Claim being requested ... An equality comparison is used to determine whether the requested Claim value matches. When the Claim value does not match the requested value, the Claim is not included in the response. If the Claim was sub, a mismatch must cause the authentication to fail.
+
+      `values`
+      : OPTIONAL. Requests that the Claim be returned with one of a set of values, with the values appearing in order of preference. This is processed equivalently to a value request
+
+`dcql_query` (OpenID4VP)
+: REQUIRED \[in OpenID4VP without `scope`; and not both].
+
+  `credentials`
+  : REQUIRED. A non-empty array of Credential Queries ... that specify the requested Credentials.
+
+    `id`
+    : REQUIRED. A \[non-empty string consisting of alphanumeric characters, underscores, or hyphens] identifying the Credential in the response and, if provided, the constraints in `credential_sets` ... Within the Authorization Request, the same id MUST NOT be present more than once.
+
+    `format`
+    : REQUIRED. A string that specifies the format of the requested Credential.
+
+    `multiple`
+    : OPTIONAL. A boolean which indicates whether multiple Credentials can be returned for this Credential Query. If omitted, the default value is false.
+
+    `meta`
+    : REQUIRED. An object defining additional properties requested by the Verifier that apply to the metadata and validity data of the Credential. The properties of this object are defined per Credential Format. If empty, no specific constraints are placed on the metadata or validity of the requested Credential.
+
+    `trusted_authorities`
+    : OPTIONAL. A non-empty array of objects ... that specifies expected authorities or trust frameworks that certify Issuers, that the Verifier will accept. Every Credential returned by the Wallet SHOULD match at least one of the conditions present in the corresponding `trusted_authorities` array if present.
+
+      `type`
+      : REQUIRED. A string uniquely identifying the type of information about the issuer trust framework. \[E.g., `aki`, `etsi_tl`, `openid_federation`.]
+
+      `values`
+      : REQUIRED. A non-empty array of strings, where each string (value) contains information specific to the used Trusted Authorities Query type that allows the identification of an issuer, a trust framework, or a federation that an issuer belongs to.
+
+    `require_cryptographic_holder_binding`
+    : OPTIONAL. A boolean which indicates whether the Verifier requires a Cryptographic Holder Binding proof. The default value is true.
+
+    `claims`
+    : OPTIONAL. A non-empty array of objects ... that specifies claims in the requested Credential. Verifiers MUST NOT point to the same claim more than once in a single query. Wallets SHOULD ignore such duplicate claim queries.
+
+      `id`
+      : REQUIRED if `claim_sets` is present in the Credential Query; OPTIONAL otherwise. A \[non-empty string consisting of alphanumeric characters, underscores, or hyphens] identifying the particular claim ... Within the particular claims array, the same id MUST NOT be present more than once.
+
+      `path`
+      : REQUIRED. The value MUST be a non-empty array representing a claims path pointer that specifies the path to a claim within the Credential.
+
+      `values`
+      : OPTIONAL. A non-empty array of strings, integers or boolean values that specifies the expected values of the claim. If the values property is present, the Wallet SHOULD return the claim only if the type and value of the claim both match exactly for at least one of the elements in the array.
+
+    `claim_sets`
+    : OPTIONAL. A non-empty array containing arrays of identifiers for elements in claims that specifies which combinations of claims for the Credential are requested.
+
+  `credential_sets`
+  : OPTIONAL. A non-empty array of Credential Set Queries ... that specifies additional constraints on which of the requested Credentials to return.
+
+    `options`
+    : REQUIRED. A non-empty array, where each value in the array is a list of Credential Query identifiers representing one set of Credentials that satisfies the use case. The value of each element in the options array is a non-empty array of identifiers which reference elements in credentials.
+
+    `required`
+    : OPTIONAL A boolean which indicates whether this set of Credentials is required to satisfy the particular use case at the Verifier. If omitted, the default value is true.
+
+
+#### Authorization request (OAuth / OpenID)
+
+`client_id` (RFC 6749; @draft-ietf-oauth-client-id-metadata-document; OIDC; OpenID4VP)
+: REQUIRED. The client identifier: a unique string representing the registration information provided by the client ... \[It] is unique in the context of an authorization server. \[It] is an opaque string \[i.e.] the client should avoid making assumptions about the identifier ... (RFC 9101: The value must match ... \[the] Request Object's `client_id`.) (@draft-ietf-oauth-client-id-metadata-document: This specification defines the client identifier as a URL with \[certain] restrictions.) (\[OpenID4VP] defines additional requirements to enable the use of Client Identifier Prefixes ... The Client Identifier can be created by parties other than the Wallet and it is considered unique within the context of the Wallet when used in combination with the Client Identifier Prefix.)
+
+`client_metadata` (OpenID4VP)
+: OPTIONAL. A JSON object containing the Verifier metadata values. It MUST be UTF-8 encoded. The following metadata parameters MAY be used:
+
+  `jwks`
+  : OPTIONAL. A JSON Web Key Set ... that contains one or more public keys, such as those used by the Wallet as an input to a key agreement that may be used for encryption of the Authorization Response ... or where the Wallet will require the public key of the Verifier to generate a Verifiable Presentation. This allows the Verifier to pass ephemeral keys specific to this Authorization Request. Public keys included in this parameter MUST NOT be used to verify the signature of signed Authorization Requests. Each JWK in the set MUST have a kid (Key ID) parameter that uniquely identifies the key within the context of the request.
+
+  `encrypted_response_enc_values_supported`
+  : OPTIONAL. Non-empty array of strings, where each string is a JWE `enc` algorithm that can be used as the content encryption algorithm for encrypting the Response. When a `response_mode` requiring encryption of the Response is specified, this MUST be present for anything other than the default single value of `A128GCM`. Otherwise, this SHOULD be absent.
+
+  `vp_formats_supported`
+  : REQUIRED when not available to the Wallet via another mechanism. Authoritative data the Wallet is able to obtain about the Client from other sources ... take precedence over the values passed in `client_metadata`. Other metadata parameters MUST be ignored unless a profile of this specification explicitly defines them as usable in the `client_metadata` parameter.
+
+`verifier_info` (OpenID4VP)
+: OPTIONAL. A non-empty array of attestations about the Verifier relevant to the Credential Request. These attestations MAY include Verifier metadata, policies, trust status, or authorizations. Attestations are intended to support authorization decisions, inform Wallet policy enforcement, or enrich the End-User consent dialog.
+
+  `format`
+  : REQUIRED. A string that identifies the format of the attestation and how it is encoded.
+
+  `data`
+  : REQUIRED. An object or string containing an attestation (e.g. a JWT). The payload structure is defined on a per format level. It is at the discretion of the Wallet whether it uses the information from `verifier_info`. Factors that influence such Wallet's decision include, but are not limited to, trust framework the Wallet supports, specific policies defined by the Issuers or ecosystem, and profiles of this specification.
+
+  `credential_ids`
+  : OPTIONAL. A non-empty array of strings each referencing a Credential requested by the Verifier for which the attestation is relevant. Each string matches the `id` field in a DCQL Credential Query. If omitted, the attestation is relevant to all requested Credentials.
+
+`code_challenge` (RFC 7636; RFC 9700; @draft-ietf-oauth-first-party-apps)
+: REQUIRED \[for PKCE]. Code challenge derived from the code verifier.
+
+`code_challenge_method` (RFC 7636; RFC 9700; @draft-ietf-oauth-first-party-apps)
+: RECOMMENDED \[for PKCE]. Code verifier transformation method, \[which] is `S256` or `plain` ... \[and] defaults to `plain` if not present in the request.
+
+`dpop_jkt` (RFC 7636; RFC 9449)
+: RECOMMENDED. The JWK Thumbprint of the proof-of-possession public key using the SHA-256 hash function, which is the same value as used for the `jkt` confirmation method \[i.e., `cnf` in the access token] ... binding the authorization code issued to the client's proof-of-possession key \[in order to] enable end-to-end binding of the entire authorization flow.
+
+`request` (RFC 9101)
+: REQUIRED \[for PAR] unless `request_uri` is specified. The Request Object that holds \[OAuth 2.x] authorization request parameters.
+
+`request_uri` (RFC 9101)
+: REQUIRED \[for PAR] unless `request` is specified. The absolute URI that is the Request Object URI referencing the \[OAuth 2.x] authorization request parameters.
+
+`request_uri_method` (OpenID4VP)
+: OPTIONAL \[and MUST NOT be present if a `request_uri` parameter is not present.]. A string determining the HTTP method to be used when the `request_uri` parameter is included in the same request. Two case-sensitive valid values are defined in this specification: `get` and `post`. If `request_uri_method` value is `get`, the Wallet MUST send the request to retrieve the Request Object using the HTTP GET method ... If `request_uri_method` value is `post`, a supporting Wallet MUST send the request using the HTTP POST method ... If the `request_uri_method` parameter is not present, the Wallet MUST process the `request_uri` parameter as defined in RFC9101. Wallets not supporting the `post` method will send a `GET` request to the Request URI ... If the Verifier set the `request_uri_method` parameter value to `post` and there is no other means to convey its capabilities to the Wallet, it SHOULD add the `client_metadata` parameter to the Authorization Request. This enables the Wallet to assess the Verifier's capabilities, allowing it to transmit only the relevant capabilities through the `wallet_metadata` parameter in the Request URI POST request.
+
+`redirect_uri` (RFC 6749; OIDC)
+: REQUIRED \[unless] only one redirect URI is registered for this client. The client's redirection endpoint previously established with the authorization server ... \[to which] the authorization server redirects the user-agent ... after completing its interaction with the resource owner. (@draft-zehavi-oauth-app2app-browserless: URL-encoded `redirect_uri` from User-Interacting App responding to its OAuth client, including its respective response parameters.)
+
+`native_callback_uri` (@draft-zehavi-oauth-app2app-browserless)
+: REQUIRED. Client App's deep link, to be invoked by User-Interacting App.
+
+`response_type` (RFC 6749; OIDC)
+: REQUIRED. The \[composable, space-delimited, order-insensitive] value ... used to signal that the client wants to use \[a certain flow] ... \[i.e.] sets of request and response parameters. (OIDC: Redirection URI to which the response will be sent. This URI must exactly match one of the Redirection URI values for the Client pre-registered \[matching by Simple String Comparison] ... the Redirection URI should use the `https` scheme \[but] may use the `http` scheme, provided that the Client Type is confidential, ... \[or] the Client is a native application, \[in which case] it may use the `http` scheme with localhost or the IP loopback literals 127.0.0.1 or [::1] as the hostname.)
+
+`response_mode` (@oauth-responses; @oidc-response-type-encoding; OpenID4VP)
+: OPTIONAL \[but NOT RECOMMENDED when it is the default mode for the specified Response Type; yet REQUIRED in OpenID4VP]. Informs the Authorization Server of the mechanism to be used for returning parameters from the Authorization Endpoint. (OpenID4VP: The new Response Mode `direct_post`\[indicates] the Wallet to send the response to the Verifier via an HTTPS connection ... It can also be used to request that the resulting response be encrypted.)
+
+<!-- ?? `delegation` (@draft-li-oauth-delegated-authorization)
+: REQUIRED \[for delegation token requests]. A `true` \[boolean] parameter ... to indicate that the client is requesting a delegation token instead of an OAuth 2.0 access token. -->
+
+`state` (RFC 6749; OIDC; OpenID4VP)
+: RECOMMENDED \[REQUIRED in OpenID4VP without Holder Binding Proofs (since then `nonce` is not returned in the response)]. An opaque value used by the client to maintain state between the request and callback. The authorization server includes this value when redirecting the user agent back to the client. (OIDC: Typically, Cross-Site Request Forgery (CSRF, XSRF) mitigation is done by cryptographically binding the value of this parameter with a browser cookie.) (OpenID4VP: `state` values MUST only contain ASCII URL safe characters.)
+
+`issuer_state` (OpenID4VCI)
+: OPTIONAL. String value identifying a certain processing context at the Credential Issuer. A value for this parameter is typically passed in a Credential Offer from the Credential Issuer to the Wallet.
+
+`auth_session` (@draft-ietf-oauth-first-party-apps)
+: OPTIONAL. \[A dynamic, opaque, client-bound value] the authorization server issues in order to be able to associate subsequent requests from the same client ... \[and] which the client is expected to include on any subsequent requests to the authorization challenge endpoint ... \[The client] must store \[it] beyond the issuance of the authorization code to be able to use it in future requests ... Including the `auth_session` parameter in the token response enables flows such as step-up authentication, so that the authorization server can restore the context of a previous session and prompt only for the needed step-up factors.
+
+`vtr` (RFC8485)
+: OPTIONAL. A partial set of acceptable Vector of Trust values. The value of this field is a JSON array of strings, each string identifying an acceptable set of vector components. The component values within each vector are AND-ed together while the separate vectors are OR-ed together. Vector request values may omit components, indicating that any value is acceptable for that component category, including omission of that component in the response vector.
+
+`acr_values` (OIDC; RFC 9470; @openid-igov-oauth2; @openid-client-initiated-backchannel-authentication; @openid-connect-modrna-authentication-1_0)
+: OPTIONAL \[REQUIRED by @openid-igov-oauth2; @openid-client-initiated-backchannel-authentication; @openid-connect-modrna-authentication-1_0]. Requested Authentication Context Class Reference values. Space-separated string that specifies the `acr` values that the Authorization Server is being requested to use for processing this Authentication Request, with the values appearing in order of preference. The Authentication Context Class satisfied by the authentication performed is returned as the `acr` Claim Value ... The `acr` Claim is requested as a Voluntary Claim by this parameter. (RFC 9470: The authentication context conveys information about how authentication takes place (e.g., what authentication method(s) or assurance level to meet).)
+
+`max_age` (OIDC; RFC 9470; @openid-igov-oauth2)
+`max_auth_age` (sOpenID PAPE)
+: OPTIONAL. Maximum Authentication Age. Specifies the allowable elapsed time in seconds since the last time the End-User was actively authenticated by the OP. If the elapsed time is greater than this value, the OP MUST attempt to actively re-authenticate the End-User ... When `max_age` is used, the ID Token returned must include an `auth_time` Claim Value. Note that `max_age=0` is equivalent to `prompt=login`. (RFC 9470: This value indicates the allowable elapsed time in seconds since the last active authentication event associated with the access token. An active authentication event entails a user interacting with the authorization server in response to an authentication prompt.)
+
+`client_notification_token` (@openid-client-initiated-backchannel-authentication)
+: REQUIRED \[for] Ping or Push modes. A bearer token [@rfc6750] provided by the Client that will be used by the OpenID Provider to authenticate the callback request to the Client.
+
+`login_hint` (OIDC; @openid-client-initiated-backchannel-authentication)
+: OPTIONAL. Hint to the Authorization Server about the login identifier \[e.g. email, phone, address, username] the End-User might use to log in (if necessary). This hint can be used by an RP if it first asks the End-User for their e-mail address (or other identifier) and then wants to pass that value as a hint to the discovered authorization service.
+
+`login_hint_token` (@openid-connect-modrna-authentication-1_0; @openid-client-initiated-backchannel-authentication; @openid-connect-modrna-authentication)
+: OPTIONAL. A token containing information identifying the end-user for whom authentication is being requested.
+
+`id_token_hint` (OIDC, @openid-client-initiated-backchannel-authentication)
+: OPTIONAL. ID Token previously issued by the Authorization Server being passed as a hint about the End-User's current or past authenticated session with the Client. If the End-User identified by the ID Token is already logged in or is logged in as a result of the request ... then the Authorization Server returns a positive response; otherwise, it must return an error ... When possible, an `id_token_hint` should be present when `prompt=none` is used ... The Authorization Server need not be listed as an audience of the ID Token when it is used as an `id_token_hint` value ... If the ID Token received by the RP from the OP is encrypted, to use it as an `id_token_hint`, the Client must decrypt \[it] \[but] may re-encrypt \[it] to the Authentication Server using a key that enables the server to decrypt the ID Token and use the re-encrypted ID token as the `id_token_hint` value.
+
+`binding_message` (@openid-connect-modrna-authentication-1_0; @openid-client-initiated-backchannel-authentication; @openid-connect-modrna-authentication)
+: OPTIONAL. A human-readable identifier or message intended to be displayed on both the consumption device and the authentication device to interlock them together for the transaction by way of a visual cue for the end-user. This interlocking message enables the end-user to ensure that the action taken on the authentication device is related to the request initiated by the consumption device. The value SHOULD contain something that enables the end-user to reliably discern that the transaction is related across the consumption device and the authentication device, such as a random value of reasonable entropy (e.g. a transactional approval code).
+
+`user_code` (@openid-client-initiated-backchannel-authentication)
+: OPTIONAL. A secret code, such as a password or pin, that is known only to the user but verifiable by the OP. The code is used to authorize sending an authentication request to the user's authentication device. This parameter should only be present if the client registration parameter `backchannel_user_code_parameter` indicates support for the user code.
+
+`requested_expiry`
+: OPTIONAL. A positive integer allowing the client to request the `expires_in` value for the `auth_req_id` the server will return. The server MAY use this value to influence the lifetime of the authentication request and is encouraged to do so where it will improve the user experience.
+
+`prompt` (OIDC; @openid-connect-prompt-create-1_0)
+: OPTIONAL. Space-delimited, case-sensitive list of ASCII string values that specifies whether the Authorization Server prompts the End-User for reauthentication and consent ... The prompt parameter can be used by the Client to make sure that the End-User is still present for the current session or to bring attention to the request. (@openid-connect-prompt-create-1_0: \[Signals] the desired user experience.)
+
+  `none`
+  : The Authorization Server must *not display any authentication or consent user interface pages*. An error is returned if an End-User is not already authenticated or the Client does not have pre-configured consent for the requested Claims or does not fulfill other conditions for processing the request. ... This can be used as a method to check for existing authentication and/or consent.  <!-- !!! -->
+
+  `login`
+  The Authorization Server should prompt the End-User for *reauthentication*. If it cannot reauthenticate the End-User, it must return an error.
+
+  `consent`
+  The Authorization Server should prompt the End-User for *consent* before returning information to the Client. If it cannot obtain consent, it must return an error.
+
+  `select_account`
+  The Authorization Server should *prompt the End-User to select a user account*. This enables an End-User who has multiple accounts at the Authorization Server to select amongst the multiple accounts that they might have current sessions for. If it cannot obtain an account selection choice made by the End-User, it must return an error.
+
+  `create` (@openid-connect-prompt-create-1_0)
+  The OpenID Provider \[should show the End-User] the account creation UX rather than the login flow.
+
+`domain_hint` (@openid-connect-enterprise-extensions)
+: OPTIONAL. A hint for the OP to determine which tenant to present to the user to authenticate to.
+
+`tenant` (@openid-connect-enterprise-extensions)
+: OPTIONAL. The tenant identifier per the tenant claim for the OP tenant that the RP would like the user to be authenticated to. Passing a tenant value of `personal` indicates the RP would like the user to use an account managed by user. Passing a tenant value of `organization` indicates the RP would like the user to use an account managed by an organization.
+
+`nonce` (OIDC; OpenID4VP)
+: OPTIONAL \[REQUIRED for implicit or hybrid flows; and for OpenID4VP with Holder Binding Proofs]. String value used to associate a Client session with an ID Token, and to mitigate replay attacks. The value is passed through unmodified from the Authentication Request to the ID Token. Sufficient entropy must be present in the nonce values used to prevent attackers from guessing values. (OpenID4VP: A case-sensitive String representing a value to securely bind Verifiable Presentation(s) provided by the Wallet to the particular transaction. The Verifier MUST create a fresh, cryptographically random number with sufficient entropy for every Authorization Request, store it with its current session, and pass it in the `nonce` Authorization Request Parameter to the Wallet ... Values MUST only contain ASCII URL safe characters.)
+
+`transaction_data` (OpenID4VP)
+: OPTIONAL. Non-empty array of strings, where each string is a base64url-encoded JSON object that contains a typed parameter set with details about the transaction that the Verifier is requesting the End-User to authorize.
+
+  `type`
+  : REQUIRED. String that identifies the type of transaction data. This value determines parameters that can be included in the `transaction_data` object.
+
+  `credential_ids`
+  : REQUIRED. Non-empty array of strings each referencing a Credential requested by the Verifier that can be used to authorize this transaction. The string matches the `id` field in the DCQL Credential Query. If there is more than one element in the array, the Wallet MUST use only one of the referenced Credentials for transaction authorization. Each document specifying details of a transaction data type defines what Credential(s) can be used to authorize those transactions. Those Credential(s) can be issued specifically for the transaction authorization use case or re-use existing Credential(s) used for user identification.
+
+`display` (OIDC)
+: OPTIONAL. ASCII string value that specifies how the Authorization Server displays the authentication and consent user interface pages to the End-User. The defined values are \[the following] ... The Authorization Server MAY also attempt to detect the capabilities of the User Agent and present an appropriate display.
+
+  `page`
+  : The Authorization Server should display the authentication and consent UI consistent with a full User Agent page view. If the display parameter is not specified, this is the default display mode.
+
+  `popup`
+  : The Authorization Server should display the authentication and consent UI consistent with a popup User Agent window. The popup User Agent window should be of an appropriate size for a login-focused dialog and should not obscure the entire window that it is popping up over.
+
+  `touch`
+  : The Authorization Server should display the authentication and consent UI consistent with a device that leverages a touch interface.
+
+  `wap`
+  : The Authorization Server should display the authentication and consent UI consistent with a "feature phone" type display.
+
+`ui_locales` (OIDC)
+: OPTIONAL. End-User's preferred languages and scripts for the user interface, represented as a space-separated list of BCP47 [RFC5646] language tag values, ordered by preference ... An error SHOULD NOT result if some or all of the requested locales are not supported by the OpenID Provider.
+
+
+### OpenID Connect Authorization API !!
+
+https://openid.net/specs/authorization-api-1_0-01.html
+
+OpenID's Authorization API provides a bare-bones interface -- consisting of a single *evaluation endpoint* -- for authorization requests, served by a Policy Decision Point (PDP) and accessed by a Policy Enforcement Point (PEP).
+
+`subject`
+: REQUIRED. \[The] principal *about* whom the Authorization API is being invoked \[which] may be requesting access at the time the Authorization API is invoked. \[It] is a JSON object.
+
+  `type`
+  : REQUIRED. A string value that specifies the type of the subject.
+
+  `id`
+  : REQUIRED. A string value containing the unique identifier of the subject, scoped to the type.
+
+  `properties`
+  : OPTIONAL. A JSON object containing any number of key-value pairs, which can be used to express additional properties of a subject ... \[since] many authorization systems are stateless, and expect the client (PEP) to pass in any properties or attributes that are expected to be used in the evaluation of the authorization policy ... To increase interoperability, a few common properties are specified.
+
+    `ip_address`
+    : OPTIONAL. The IP address of the subject ... whose value is a textual representation of an IP address, as defined in \[RFC4001].
+
+    `device_id`
+    : OPTIONAL. The Device Identifier of the Subject ... whose value is a string representation of the device identifier.
+
+`resource`
+: REQUIRED. The target of an access request. \[It] is a JSON object.
+
+  `type`
+  : REQUIRED. A string value that specifies the type of the resource.
+
+  `id`
+  : REQUIRED. A string value containing the unique identifier of the resource, scoped to the type.
+
+  `properties`
+  : OPTIONAL. A JSON object containing any number of key-value pairs, which can be used to express additional properties of a resource.
+
+`action`
+: REQUIRED. The type of access that the requester intends to perform. \[It] is a JSON object.
+
+  `name`
+  : REQUIRED. The name of the action ...  Since many services follow a \[CRUD] convention, a set of common actions are defined: `can_access` (a generic action that could mean any type of access), `can_create`, `can_read`, `can_update`, `can_delete`.
+
+  `properties`
+  : OPTIONAL. A JSON object containing any number of key-value pairs, which can be used to express additional properties of an action.
+
+`context`
+: OPTIONAL. A set of attributes that represent environmental or contextual data about the request such as time of day. It is a JSON object.
+
+`grant_id` (@2fapi-grant-management)
+: OPTIONAL \[REQUIRED if `grant_management_action` is `update` or `replace`]. String value identifying an individual grant managed by a particular authorization server for a certain client and a certain resource owner.
+
+  There is no explicit representation of the grant \[i.e., the representation of privileges granted by a resource owner to a particular client] in the OAuth protocol. \[WHUT?!] ... Clients cannot explicitly manage grants \[e.g., querying, updating, or replacing the details of a grant; revoking a grant; obtaining new tokens for existing grants]. The status is implicitly communicated \[i.e., an API call fails].
+
+`grant_management_action` (@2fapi-grant-management)
+: OPTIONAL. String value controlling the way the authorization server shall handle the grant when processing an authorization request. This specification defines the following values:
+
+  - `create`: The AS will create a fresh grant if the AS supports the grant management action `create`.
+
+  - `update`: If the \[`grant_id`] parameter is present and the AS supports the grant management action `update`, the AS will merge the permissions consented by the user in the actual request with those which already exist within the grant.
+
+  - `replace`: If the \[`grant_id`] parameter is present and the AS supports the grant management action `replace`, the AS will change the grant to be ONLY the permissions requested by the client and consented by the user in the actual request.
+
+
+### OpenID Connect token request
+
+`auth_req_id` (@openid-client-initiated-backchannel-authentication)
+: REQUIRED. The unique identifier to identify the authentication request (transaction) made by the Client. The OP must check whether the `auth_req_id` was issued to this Client in response to an Authentication Request.
+
+`session_expiry` (@openid-connect-enterprise-extensions)
+: OPTIONAL. A JSON integer that represents the Unix timestamp (seconds since epoch) indicating when a session created from the ID token must expire.
+
+`tenant` (@openid-connect-enterprise-extensions)
+: OPTIONAL. A JSON string that represents a tenant identifier and may have the value `personal` \[reserved for accounts are managed by individuals], `organization` \[reserved for accounts managed by an organization] or a stable, opaque to the RP, OP unique value for multi-tenant OPs.
+
+  *"Account"*
+  **: A set of claims about a user.**
+
+  *"Tenant"*
+  : A logically isolated entity within an OP that represents a distinct organizational or administrative boundary. An OP may have a single tenant, or multiple tenants. The tenant may contain accounts managed by individuals, or may contain accounts managed by an organization.
+
+`aud_sub` (@openid-connect-enterprise-extensions)
+: OPTIONAL. An opaque JSON string that represents the identifier the RP has for the account. How the OP acquires the `aud_sub` and how the OP account and RP account linking is out of scope.
+
+
+### GNAP access request
+
+
+`access_token`
+: REQUIRED if requesting an access token. \[An object or array of objects that] describes the rights and properties associated with the requested access token.
+
+  `access`
+  : REQUIRED. \[An array of strings or RAR objects that] describes the rights that the client instance is requesting for the access token to be used at the RS.
+
+    `type`
+    : OPTIONAL. See RAR (string).
+
+    `identifier`
+    : OPTIONAL. See RAR (string).
+
+    `locations`
+    : OPTIONAL. See RAR (array of strings).
+
+    `datatypes`
+    : OPTIONAL. See RAR (array of strings).
+
+    `privileges`
+    : OPTIONAL. See RAR (array of strings).
+
+    `actions`
+    : OPTIONAL. See RAR (array of strings).
+
+  `label`
+  : REQUIRED if used as part of a request for multiple access tokens. A unique name \[string] chosen by the client instance to refer to the resulting access token. The value of this field is opaque to the AS and is not intended to be exposed to or used by the end user ... The AS must include the same label in the token response.
+
+  `flags`
+  : OPTIONAL. A set of flags \[i.e., an array of strings] that indicate desired attributes or behavior to be attached to the access token by the AS
+
+`subject`
+: REQUIRED if requesting subject information. \[An object that] describes the information about the RO that the client instance is requesting to be returned directly in the response from the AS.
+
+  `sub_id_formats`
+  : REQUIRED if Subject Identifiers are requested. An array of \[RFC 9493] Subject Identifier subject formats \[strings] requested for the RO
+
+  `assertion_formats`
+  : REQUIRED if assertions are requested. An array of requested assertion formats \[strings; e.g. `id_token`, `saml2`].
+
+  `sub_ids`
+  : OPTIONAL. An array of \[RFC 9493] Subject Identifiers \[objects] representing the subject for which information is being requested. All identifiers in the `sub_ids` array must identify the same subject. If omitted, the AS should assume that subject information requests are about the current user and should require direct interaction or proof of presence before releasing information.
+
+`client`
+: REQUIRED. \[A string or object that] describes the client instance that is making this request, including the key that the client instance will use to protect this request, any continuation requests at the AS, and any user-facing information about the client instance used in interactions.
+
+  `key`
+  : REQUIRED. The public key of the client instance to be used in this request as \[a key object] or a reference to a key.
+
+  `class_id`
+  : OPTIONAL. An identifier string that the AS can use to identify the client software comprising this client instance. The contents and format of this field are up to the AS.
+
+  `display`
+  : OPTIONAL. An object containing additional information that the AS may display to the RO during interaction, authorization, and management.
+
+    `name`
+    : RECOMMENDED. Display name \[string] of the client software.
+
+    `uri`
+    : OPTIONAL. \[An absolute URI to] user-facing information about the client software, such as a web page.
+
+    `logo_uri`
+    : OPTIONAL. \[An absolute URI to a] a display image to represent the client software. The logo may be passed by value by using a `data:` URI referencing an image media type.
+
+`user`
+: OPTIONAL. \[A string or object that] identifies the end user to the AS in a manner that the AS can verify, either directly or by interacting with the end user to determine their status as the RO.
+
+  `sub_ids`
+  : OPTIONAL \[REQUIRED if returning Subject Identifiers]. An array of \[RFC 9493] Subject Identifiers \[objects] for the end user \[RO].
+
+  `assertions`
+  : OPTIONAL \[REQUIRED if returning assertions]. An array containing assertions as objects, each containing the assertion format and the assertion value as the JSON string serialization of the assertion.
+
+    `format`
+    : REQUIRED. The assertion format \[string; e.g. `id_token`, `saml2`].
+
+    `value`
+    : REQUIRED. The assertion value as the JSON string serialization of the assertion.
+
+  `updated_at`
+  : RECOMMENDED. Timestamp as a \[RFC 3339] date string, indicating when the identified account was last updated. The client instance may use this value to determine if it needs to request updated profile information through an identity API.
+
+`interact`
+: REQUIRED if interaction is supported. \[An object that] describes the modes that the client instance supports for allowing the RO to interact with the AS and modes for the client instance to receive updates when interaction is complete.
+
+  `start`
+  : REQUIRED. \[An array of strings or objects that] indicates how the client instance can start an interaction. Interaction start modes defined as objects MAY define additional parameters to be required in the object. The start array can contain both string-type and object-type modes.
+
+    `mode`
+    : REQUIRED. The interaction start mode \[e.g., redirect, app, user_code, user_code_uri].
+
+  `finish`
+  : OPTIONAL. \[An object that] indicates how the client instance can receive an indication that interaction has finished at the AS.
+
+    `method`
+    : REQUIRED. The callback method \[string] that the AS will use to contact the client instance \[e.g., redirect, push].
+
+    `uri`:
+    : REQUIRED for redirect and push methods. \[An absolute URI without fragment component, which] the AS will use to signal the client instance that interaction has completed. This URI may be unique per request and must be hosted by or accessible to the client instance.
+
+    `nonce`
+    : REQUIRED. Unique ASCII string value to be used in the calculation of the "hash" query parameter sent to the callback URI. It must be sufficiently random to be unguessable by an attacker. It must be generated by the client instance as a unique value for this request.
+
+    `hash_method`
+    : OPTIONAL. An identifier \[string] of a hash calculation mechanism to be used for the callback hash ... If absent, the default value is sha-256.
+
+
+  `hints`
+  : OPTIONAL. \[An object that] provides additional information to inform the interaction process at the AS.
+
+    `ui_locales`
+    : OPTIONAL. \[An array of strings that] indicates the end user's preferred locales that the AS can use during interaction, particularly before the RO has authenticated.
+
+
+### Data Spaces / ODRL
+
+<!-- ODRL profile: https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/HEAD/message/schema/odrl.jsonld -->
+
+`@context`
+: REQUIRED \[https://w3id.org/dspace/2025/1/context.jsonld]. JSON-LD context to serialize data structures and Message types ... The JSON-LD context is designed to produce Message serializations using compaction that validate against the JSON Schema for the given Message type. This allows implementations to choose whether to process messages as plain JSON or as JSON-LD and maintain interoperability between those approaches. Profiles that use JSON-LD are encouraged to provide similar contexts that facilitate this approach to interoperability. As this specification's JSON-LD objects are @protected, Profile authors are advised to define their custom terms as protected to spot term redefinition early.
+
+`@type`
+: REQUIRED. `ContractRequestMessage` or `ContractOfferMessage`.
+
+`callbackAddress`
+: OPTIONAL. A URL indicating where messages to the consumer should be sent.
+
+`providerPid`
+: REQUIRED \[for a ContractOfferMessage]. string
+
+`consumerPid`
+: REQUIRED \[for a ContractOfferMessage]. string
+
+`assigner`
+`assignee` (or other Function property; ODRL only ?)
+: OPTIONAL. \[SHARED] \[An array containing] values of type Party. (`assigner` indicates the Party that is issuing the Rule; `assignee` indicates that the Party that is the recipient of the Rule.)
+
+`action` (ODRL only ?)
+: OPTIONAL. \[SHARED] action \[IRI (ODRL) or string (Data Spaces)].
+
+`target` (or other Relation property; ODRL only ?)
+: OPTIONAL. \[SHARED] asset.
+
+`constraint` (ODRL only ?)
+: OPTIONAL. \[SHARED] \[An array containing] values of type Constraint/LogicalConstraint.
+
+`failure` (ODRL only ?)
+: OPTIONAL. \[SHARED] \[An array containing] values of type Rule.
+
+`offer`
+: REQUIRED. A MessageOffer \[i.e., ODRL Offer: a Policy that supports offerings of Rules from assigner Parties].
+
+  `@id` (Data Spaces only ?)
+  `uid` (ODRL only ?)
+  : REQUIRED. \[An IRI] to identify the Policy.
+
+  `@type`
+  : REQUIRED. `(Message)Offer`
+
+  `profile`
+  : OPTIONAL. \[An IRI or array of IRIs] to identify the ODRL Profile that this Policy conforms to.
+
+  `inheritFrom` (ODRL only ?)
+  : OPTIONAL \[in ODRL]. \[An IRI or array of IRIs] to identify the parent Policy from which this child Policy inherits from.
+
+  `conflict` (ODRL only ?)
+  : OPTIONAL \[in ODRL]. \[A string] (of type ConflictTerm) for Conflict Strategy Preferences indicating how to handle Policy conflicts.
+
+  `assigner` (ODRL only ?)
+  : REQUIRED \[in ODRL]. A  property value \[object] (of type Party) to indicate the functional role in the same Rules.
+
+  `obligation`
+  `permission`
+  `prohibition`
+  : OPTIONAL \[REQUIRED in ODRL]. \[An array containing] at least one permission, prohibition, or obligation ... Rule.
+
+    `@type`
+    : REQUIRED. Permission | Prohibition | Duty
+
+    `uid` (ODRL only ?)
+    : OPTIONAL \[in ODRL]. \[IRI] to identify the Rule so it may be referenced by other Rules.
+
+    `action`
+    : REQUIRED. Action \[IRI (ODRL) or string (Dataspaces)].
+
+    `target` (or other Relation property)
+    : OPTIONAL. Asset.
+
+    `assigner`
+    `assignee` (or other Function property; ODRL only ?)
+    : OPTIONAL. \[An array containing] values of type Party. (`assigner` indicates the Party that is issuing the Rule; `assignee` indicates that the Party that is the recipient the of Rule.)
+
+    `duty`
+    `remedy`
+    `consequence` (or other Failure property; ODRL only ?)
+    : OPTIONAL. \[An array containing] values of type Rule.
+
+    `constraint`
+    : OPTIONAL. \[An array containing] values of type Constraint/LogicalConstraint.
+
+      `@type`
+      : REQUIRED. Constraint
+
+      `operator`
+      : REQUIRED. Operator
+
+      `leftOperand`
+      : REQUIRED. LeftOperand
+      `rightOperand`
+      : REQUIRED. RightOperand
+
+      `and`
+      : OPTIONAL. array[Constraint]
+      `andSequence`
+      : OPTIONAL. array[Constraint]
+      `or`
+      : OPTIONAL. array[Constraint]
+      `xone`
+      : OPTIONAL. array[Constraint]
+
+<!--
+# A4DS-ODRL (proposal)
+
+@context: http://www.w3.org/ns/odrl.jsonld
+
+@type: Request
+profile:
+  @id: https://w3id.org/oac#
+uid: `http://example.org/HCPX-request/11092193193131`
+description: HCPX to read Alice's health data for bariatric care
+permission: Permission[] # rules
+prohibition: Prohibition[] # rules
+obligation: Duty[] # rules
+inheritFrom?: IRI[]
+conflict?: ConflictTerm
+grant_type: urn:ietf:params:oauth:grant-type:uma-ticket
+ticket: 016f84e8-f9b9-11e0-bd6f-0021cc6004de
+claims: array[
+  claim_token: ...
+  claim_token_format: ...
+]
+
+@type: Rule # Permission | Prohibition | Duty
+uid?: IRI
+action: Action
+target?: Asset # and/or other 'relation' sub-properties to Assets
+assigner?: Party[]  # and/or other 'function' sub-properties to Parties
+assignee?: Party[]  # and/or other 'function' sub-properties to Parties
+[failure?: Rule[]] # as sub-property; cf. sub-classes
+constraint?: (Logical)Constraint[]
+
+@type: Permission # inherits from Rule
+duty?: Duty[]
+
+@type: Prohibition # inherits from Rule
+remedy?: Duty[]
+
+@type: Duty # inherits from Rule
+consequence?: Duty[] # not with remedy ? -->
+
+
+
+# JWTs (Request Objects / Assertions / ...)
+
+<!-- KEY -->
+<!--
+kid
+    The key ID of the key pair used to sign this token
+kty
+    The key type
+typ
+  ...
+alg
+    The default algorithm used for this key
+-->
+
+`iss` (RFC 9101; from RFC 7519; also see RFC 7521, RFC 7523, and @draft-ietf-oauth-identity-assertion-authz-grant, and @draft-ietf-oauth-attestation-based-client-auth; @openid-federation-connect-1_1; @openid-heart)
+: RECOMMENDED \[REQUIRED in RFC 7523, @draft-ietf-oauth-identity-assertion-authz-grant, and @draft-ietf-oauth-attestation-based-client-auth; @openid-heart]. A case-sensitive string containing a `StringOrURI` value ... \[that] identifies the principal that issued the JWT \[i.e., Request Object].
+
+`azp` (@openid-heart)
+: REQUIRED. The client id of the client to whom this token was issued
+
+`active` (introspection)
+: OPTIONAL. \[A] boolean value indicating whether or not this token is currently active at this authorization server. Tokens that have been revoked, have expired, or were not issued by this authorization server are considered non-active.
+
+`aud` (RFC 9101; from RFC 7519; also see RFC 7521, RFC 7523, and @draft-ietf-oauth-identity-assertion-authz-grant; @openid-federation-connect-1_1; @openid-heart)
+: RECOMMENDED \[REQUIRED in RFC 7523 and @draft-ietf-oauth-identity-assertion-authz-grant; @openid-heart]. An array of case-sensitive strings, each containing a `StringOrURI` value (\[or], when the JWT has one audience ... a single case-sensitive string containing a `StringOrURI` value) ... \[that] identifies the recipients that the JWT \[i.e., Request Object] is intended for. (RFC 7523: For the authorization grant, the client is responsible for ensuring that the audience of the JWT assertion is appropriate for the authorization server to which it is sent \[e.g. its issuer identifier or its token endpoint URL]; for client authentication ... \[the client] must use the issuer identifier of the authorization server as its sole value ... There must be no value other than the issuer identifier of the intended authorization server used as the audience of the JWT; this includes that the token endpoint URL of the authorization server must not be used as an audience value.)
+
+`sub` (RFC 9101; from RFC 7519; also see RFC 7521, RFC 7523, @draft-ietf-oauth-identity-assertion-authz-grant, and @draft-ietf-oauth-attestation-based-client-auth; @openid-federation-connect-1_1@openid-heart)
+: OPTIONAL \[REQUIRED in RFC 7523 and @draft-ietf-oauth-identity-assertion-authz-grant and @draft-ietf-oauth-attestation-based-client-auth; @openid-heart]. A case-sensitive string containing a `StringOrURI` value \[that] identifies the principal that is the subject of the JWT \[i.e., Request Object] ...  The subject value must ... be locally unique in the context of the issuer or be globally unique. (RFC 7523: For client authentication, the subject must be the `client_id` of the OAuth client; for the authorization grant, the subject typically identifies an authorized accessor for which the access token is being requested (i.e., the resource owner or an authorized delegate), but in some cases, may be a pseudonymous identifier or other value denoting an anonymous user.) (@draft-ietf-oauth-identity-assertion-authz-grant: The subject identifier ... of the resource owner at the Resource Authorization Server) (@draft-ietf-oauth-attestation-based-client-auth: The sub (subject) claim MUST specify `client_id` value of the OAuth Client.) (@openid-federation-connect-1_1: must not be present \[since] this prevents reuse of the statement for `private_key_jwt` client authentication.) (@openid-sharedsignals-framework-1_0: Must not be present)
+
+`iat` (RFC 9101; from RFC 7519; also see RFC 7521, RFC 7523, and @draft-ietf-oauth-identity-assertion-authz-grant; @openid-federation-connect-1_1)
+: OPTIONAL \[REQUIRED in @draft-ietf-oauth-identity-assertion-authz-grant)]. A number containing a `NumericDate` value ... \[that] identifies the time at which the JWT \[i.e., Request Object] was issued.
+
+`exp` (RFC 9101; from RFC 7519; also see RFC 7521, RFC 7523, @draft-ietf-oauth-identity-assertion-authz-grant, and @draft-ietf-oauth-attestation-based-client-auth; @openid-federation-connect-1_1)
+: OPTIONAL \[REQUIRED in RFC 7523, @draft-ietf-oauth-identity-assertion-authz-grant and @draft-ietf-oauth-attestation-based-client-auth]. A number containing a `NumericDate` value ... \[that] identifies the expiration time on or after which the JWT \[i.e., Request Object] must not be accepted for processing. (@openid-sharedsignals-framework-1_0: Must not be present.)
+
+`nbf` (RFC 9101; from RFC 7519; also see RFC 7521, RFC 7523, and @draft-ietf-oauth-identity-assertion-authz-grant)
+: OPTIONAL \[REQUIRED in @draft-ietf-oauth-identity-assertion-authz-grant and @draft-ietf-oauth-attestation-based-client-auth)]. A number containing a `NumericDate` value ... \[that] identifies the time before which the JWT \[i.e., Request Object] must not be accepted for processing.
+
+`jti` (RFC 9101; from RFC 7519; also see RFC 7521, RFC 7523, and @draft-ietf-oauth-identity-assertion-authz-grant; @openid-federation-connect-1_1)
+: OPTIONAL \[REQUIRED in @draft-ietf-oauth-identity-assertion-authz-grant)]. A case-sensitive string \[that] provides a unique identifier for the JWT \[i.e., Request Object] /[to prevent the JWT from being replayed]. The identifier value must be assigned in a manner that ensures that there is a negligible probability that the same value will be accidentally assigned to a different data object; if the application uses multiple issuers, collisions must be prevented among values produced by different issuers as well.
+
+`cnf` (@draft-ietf-oauth-attestation-based-client-auth; from RFC 7800)
+: REQUIRED. The `cnf` (confirmation) claim ... that is used by the Client Instance to generate the Client Attestation PoP JWT for client authentication with an authorization server. The key MUST be expressed using the `jwk` representation.
+
+`client_id` (@draft-ietf-oauth-identity-assertion-authz-grant; as in RFC 8693; @openid-federation-connect-1_1)
+: REQUIRED. An identifier of the client that will act on behalf of the resource owner.
+
+`resource` (@draft-ietf-oauth-identity-assertion-authz-grant)
+: OPTIONAL. The Resource Identifier of the Resource Server (either a single URI or an array of URIs).
+
+`scope` (@draft-ietf-oauth-identity-assertion-authz-grant)
+: OPTIONAL. A JSON string containing a space-separated list of scopes associated with the token.
+
+`tenant` (@draft-ietf-oauth-identity-assertion-authz-grant; from OpenID Enterprise)
+: OPTIONAL. JSON string that represents the tenant identifier for a multi-tenant issuer.
+
+`auth_time` (@draft-ietf-oauth-identity-assertion-authz-grant; from OpenID Connect)
+: OPTIONAL. Time when end-user authenticated to the client.
+
+`acr` (@draft-ietf-oauth-identity-assertion-authz-grant; from OpenID Connect)
+: OPTIONAL. Authentication Context Class Reference that was satisfied when authenticating the end-user.
+
+`amr` (@draft-ietf-oauth-identity-assertion-authz-grant; from OpenID Connect)
+: OPTIONAL. Identifiers for authentication methods used when authenticating the end-user.
+
+`nonce` (OIDC)
+: OPTIONAL \[REQUIRED for the implicit flow]. If a nonce parameter is present in the Authentication Request, Authorization Servers MUST include a nonce Claim in the ID Token.
+
+`at_hash` (OIDC)
+: OPTIONAL \[REQUIRED in implicit or hybrid flows]. Access Token hash value. Its value is the base64url encoding of the left-most half of the hash of the octets of the ASCII representation of the `access_token` value, where the hash algorithm used is the hash algorithm used in the `alg` Header Parameter of the ID Token's JOSE Header. For instance, if the `alg` is `RS256`, hash the `access_token` value with SHA-256, then take the left-most 128 bits and base64url-encode them. The `at_hash` value is a case-sensitive string.
+
+`c_hash` (OIDC)
+OPTIONAL \[REQUIRED in implicit or hybrid flows]. Code hash value. Its value is the base64url encoding of the left-most half of the hash of the octets of the ASCII representation of the code value, where the hash algorithm used is the hash algorithm used in the `alg` Header Parameter of the ID Token's JOSE Header. For instance, if the `alg` is `HS512`, hash the code value with SHA-512, then take the left-most 256 bits and base64url-encode them. The `c_hash` value is a case-sensitive string.
+
+`ds_hash` (@openid-connect-native-sso-1_0.)
+: REQUIRED. The `ds_hash` value provides a binding between the `id_token` and the issued `device_secret` \[but] the exact binding between ... is not specified by this profile ... as this binding is managed solely by the Authorization Server.
+
+`sid` (@openid-connect-native-sso-1_0.)
+: REQUIRED. A string that uniquely identifies this user's authentication session ... For mobile apps where there is no explicit browser authentication this value SHOULD represent the underlying session associated with the `refresh_token`.
+
+`trust_chain` (@openid-federation-connect-1_1)
+: OPTIONAL. Array containing the sequence of Entity Statements that comprise the Trust Chain between the RP making the request and the selected Trust Anchor. When the RP and the OP are part of the same federation, the RP MUST select a Trust Anchor that it has in common with the OP; otherwise, the RP is free to select the Trust Anchor to use ... The use of the `trust_chain` header parameter ... is recommended over the use of this parameter; it is retained for historical reasons.
+
+`authority_hints` (@openid-federation-connect-1_1)
+: REQUIRED. A single-element array, whose value references the Immediate Superior of the RP in the Trust Chain that the OP selected to process the request.
+
+`metadata` (@openid-federation-connect-1_1)
+: REQUIRED. The registered RP metadata under the `openid_relying_party` Entity Type Identifier.
+
+`crit` (@openid-federation-connect-1_1)
+: OPTIONAL. Set of Claims that must be understood and processed.
+
+`trust_marks` (@openid-federation-connect-1_1)
+: OPTIONAL.
+
+`jwks` (@openid-federation-connect-1_1)
+: OPTIONAL. A verbatim copy of the `jwks` Entity Statement Claim from the received Entity Configuration of the RP. Note that this is distinct from the identically named RP metadata parameter.
+
+`trust_anchor` (@openid-federation-connect-1_1)
+: REQUIRED. The Entity Identifier of the Trust Anchor that the OP selected to process the Explicit Registration request. If complete Trust Chains to the Trust Anchor selected by the RP were provided ... this must match the Trust Anchors at the roots of those Trust Chains.
+
+`txn` (@openid-sharedsignals-framework-1_0)
+: RECOMMENDED. \[A value set by the transmitter, which] must be unique to the underlying event that caused the transmitter to generate the Security Event Token (SET) \[but may be] the same value in the `txn` claim across different Security Event Tokens (SETs), such as session revoked and credential change, to indicate that the SETs originated from the same underlying cause or reason.
+
+`events` (@openid-sharedsignals-framework-1_0)
+: REQUIRED. \[A JSON array containing] only one event. Multiple event type URIs are permitted only if they are alternative URIs defining the exact same event type. The type of the event is specified by the key in the value of the events claim. The value of this field is the event object.
+
+---
+
+(@openid-connect-core-1_0: Three representations of Claim Values are defined by this specification: Normal Claims ... that are directly asserted by the OpenID Provider; Aggregated Claims ... that are asserted by a Claims Provider other than the OpenID Provider but are returned by OpenID Provider; Distributed Claims ... that are asserted by a Claims Provider other than the OpenID Provider but are returned as references by the OpenID Provider. Normal Claims must be supported. Support for Aggregated Claims and Distributed Claims is optional ... Normal Claims are represented as members in a JSON object. The Claim Name is the member name and the Claim Value is the member value ... Aggregated and distributed Claims are represented by using special `_claim_names` and `_claim_sources` members of the JSON object containing the Claims.)
+
+`_claim_names` (OIDC)
+: OPTIONAL. JSON object whose member names are the Claim Names for the Aggregated and Distributed Claims. The member values are references to the member names in the `_claim_sources` member from which the actual Claim Values can be retrieved.
+
+`_claim_sources` (OIDC)
+: OPTIONAL. JSON object whose member names are referenced by the member values of the `_claim_names` member. The member values contain sets of Aggregated Claims or reference locations for Distributed Claims. The member values can have one of the following formats depending on whether it is providing Aggregated or Distributed Claims:
+
+  - Aggregated Claims: \[A] JSON object that must contain the `JWT` member ... Other members may be present.
+
+    `JWT`
+    : REQUIRED. A JWT that must contain all the Claims in the `_claim_names` object that references the corresponding `_claim_sources` member.
+
+  - Distributed Claims: \[A] JSON object that contains the following members and values.
+
+    `endpoint`
+    : REQUIRED. \[An] OAuth 2.0 resource endpoint \[URL] from which the associated Claim can be retrieved ... as a JWT. (@openid-connect-4-identity-assurance: The URL that is the value of the endpoint element in any distributed `_claim_source` sub-element shall use the `https` URI scheme and the JWT returned should not be accessible via any other URI scheme.)
+
+    `access_token`
+    : OPTIONAL. \[An] access token enabling retrieval of the Claims from the endpoint URL by using the OAuth 2.0 Bearer Token Usage \[RFC6750] protocol. Claims should be requested using the Authorization Request header field and Claims Providers must support this method. If the Access Token is not available, RPs may need to retrieve the Access Token out of band or use an Access Token that was pre-negotiated between the Claims Provider and RP, or the Claims Provider may reauthenticate the End-User and/or reauthorize the RP.
+
+  A `sub` (subject) Claim should not be returned from the Claims Provider \[or contained in the JWT] unless its value is an identifier for the End-User at the Claims Provider (and not for the OpenID Provider or another party). An `iss` (issuer) Claim should be included in any JWT issued by a Claims Provider so that the Claims Provider's keys can be retrieved for signature validation of the JWT. (@openid-connect-4-identity-assurance: For aggregated or distributed claims, every assertion provided by the external claims source shall contain: a `typ` header parameter with the value `provided-claims+jwt`, an `iss` claim identifying the claims source, a `sub` claim identifying the end-user in the context of the claim source, and a `verified_claims` element containing one or more `verified_claims` objects. To ensure that assertions cannot be confused with OpenID Connect ID Tokens, assertions shall not contain: an `exp` claim, or an `aud` claim.)
+
+`verified_claims` (@openid-connect-4-identity-assurance-1_0; cf. request)
+: OPTIONAL. \[An] element in an aggregated or distributed claims object \[which has] one of the following forms: a JSON string referring to a certain claim source (as defined in OpenID); a JSON array of strings referring to the different claim sources; a JSON object composed of sub-elements formatted with the syntax as defined for requesting `verified_claims` where the name of each object is a name for the respective claim source. Every such named object contains sub-objects called `claims` and `verification` expressing data provided by the respective claims source. This allows the RP to look ahead before it actually requests distributed claims in order to prevent extra time, cost, data collisions, etc. caused by these requests.
+
+
+# Standard and verified OIDC Claims (AuthZ Req / ID Token / UserInfo)
+
+This specification defines a set of standard Claims ... Human-readable Claim Values and Claim Values that reference human-readable values may be represented in multiple languages and scripts. Within a request for individual Claims, requested languages and scripts for particular Claims may be requested by including Claim Names that contain #-separated BCP47 language tags in the Claims request \[e.g.] `family_name#ja-Kana-JP`, `website#de`. If an OP receives a request for human-readable Claims in a language and script that it does not have, any versions of those Claims returned that do not use the requested language and script should use a language tag in the Claim Name.
+
+  `sub` (string)
+  : Subject - Identifier for the End-User at the Issuer.
+
+  `name` (string)
+  : End-User's full name in displayable form including all name parts, possibly including titles and suffixes, ordered according to the End-User's locale and preferences.
+
+  `given_name` (string)
+  : Given name(s) or first name(s) of the End-User ... separated by space characters.
+
+  `family_name` (string)
+  : Surname(s) or last name(s) of the End-User ... separated by space characters.
+
+  `middle_name` (string)
+  : Middle name(s) of the End-User ... separated by space characters.
+
+  `nickname` (string)
+  : Casual name of the End-User that may or may not be the same as the `given_name`.
+
+  `preferred_username` (string)
+  : Shorthand name by which the End-User wishes to be referred to at the RP.
+
+  `profile` (string)
+  : URL of the End-User's profile page. The contents of this Web page should be about the End-User.
+
+  `picture` (string)
+  : URL of the End-User's profile picture \[suitable for displaying when describing the End-User] \[which] must refer to an image file ... rather than to a Web page containing an image.
+
+  `website` (string)
+  : URL of the End-User's Web page or blog \[which] should contain information published by the End-User or an organization that the End-User is affiliated with.
+
+  `email` (string)
+  : End-User's preferred e-mail address. Its value must conform to the RFC 5322 addr-spec syntax.
+
+  `email_verified` (boolean)
+  : True if the End-User's e-mail address has been verified \[i.e.] the OP took affirmative steps to ensure that this e-mail address was controlled by the End-User at the time the verification was performed.
+
+  `gender` (string)
+  : End-User's gender. Values defined by this specification are `female` and `male`. Other values may be used when neither of the defined values are applicable.
+
+  `birthdate` (string)
+  : End-User's birthday, represented as an ISO 8601-1 YYYY-MM-DD format. The year MAY be 0000, indicating that it is omitted. To represent only the year, YYYY format is allowed.
+
+  `zoneinfo` (string)
+  : String from IANA Time Zone Database representing the End-User's time zone.
+
+  `locale` (string)
+  : End-User's locale, represented as a BCP47 language tag.
+
+  `phone_number` (string)
+  : End-User's preferred telephone number. E.164 is recommended as the format of this Claim. If the phone number contains an extension, it is RECOMMENDED that the extension be represented using the RFC 3966 extension syntax. \[REQUIRED when `phone_number_verified` is true]
+
+  `phone_number_verified` (boolean)
+  : True if the End-User's phone number has been verified \[i.e.] the OP took affirmative steps to ensure that this phone number was controlled by the End-User at the time the verification was performed.
+
+  `address` (JSON)
+  : object 	End-User's preferred postal address. The value of the address member is a JSON [RFC8259] structure containing some or all of the members \[below]. Implementations may return only a subset of the fields of an address.
+
+    `formatted`
+    : Full mailing address, formatted for display or use on a mailing label. This field may contain multiple lines, separated by newlines ... represented either as a carriage return/line feed pair ("\\r\\n") or as a single line feed character ("\\n").
+
+    `street_address`
+    : Full street address component ... This field may contain multiple lines, separated by newlines ... represented either as a carriage return/line feed pair ("\\r\\n") or as a single line feed character ("\\n").
+
+    `locality`
+    : City or locality component.
+
+    `region`
+    : State, province, prefecture, or region component.
+
+    `postal_code`
+    : Zip code or postal code component.
+
+    `country`
+    : Country name component.
+
+  `updated_at` (number)
+  : Time the End-User's information was last updated. Its value is a JSON number representing the number of seconds from 1970-01-01T00:00:00Z as measured in UTC until the date/time.
+
+  `acr`
+  : If the `acr` Claim is requested as an Essential Claim for the ID Token with a value or values parameter requesting specific Authentication Context Class Reference values and the implementation supports the claims parameter, the Authorization Server must return an `acr` Claim Value that matches one of the requested values. The Authorization Server may ask the End-User to re-authenticate with additional factors to meet this requirement. If this is an Essential Claim and the requirement cannot be met, then the Authorization Server must treat that outcome as a failed authentication attempt ... If the Claim is not Essential \[equivalent to using the `acr_values` request parameter] and a requested value cannot be provided, the Authorization Server should return the session's current `acr` as the value of the `acr` Claim \[but] is not required to provide this Claim in its response.
+
+  `place_of_birth` (from here @openid-connect-4-ida-claims-1_0)
+  : End-user's place of birth. The value of this member is a JSON structure containing some or all of the following members.
+
+    `country`
+    : String representing country in \[ISO3166-1] or \[ISO3166-3] syntax.
+
+    `region`
+    : String representing state, province, prefecture, or region component. This field might be required in some jurisdictions.
+
+    `locality`
+    : String representing city or locality component.
+
+  `nationalities`
+  : End-user's nationalities using ICAO 3-letter codes ... 2-letter ICAO codes may be used in some circumstances for compatibility reasons.
+
+  `birth_family_name`
+  ; End-user's family name(s) when they were born, or at least from the time they were a child.
+
+  `birth_given_name`
+  : End-user's given name(s) when they were born, or at least from the time they were a child.
+
+  `birth_middle_name`
+  : End-user's middle name(s) when they were born, or at least from the time they were a child.
+
+  `salutation`
+  : End-user's salutation
+
+  `title`
+  : End-user's title
+
+  `msisdn`
+  : End-user's mobile phone number formatted according to ITU-T recommendation \[E.164]
+
+  `also_known_as`
+  : Stage name, religious name or any other type of alias/pseudonym with which a person is known in a specific context besides their legal name.
+
+`verified_claims` (@openid-4-identity-assurance; @openid-ida-verified-claims-1_0)
+: OPTIONAL. A single object or an array of objects, each object comprising the following sub-elements.
+
+  `claims`
+  : REQUIRED. Object that is the container for the verified claims about the end-user.
+
+  `verification`
+  : REQUIRED. Object that contains data about the verification process ... The verification element can be used independently of OpenID Connect and OpenID Connect for Identity Assurance where there is a need for representation of identity assurance metadata in a different application protocol or digital identity data format such as \[W3C_VCDM]. The verification element consists of the following elements.
+
+    `trust_framework`
+    : REQUIRED. String determining the trust framework governing the identity verification process of the claim provider. An example value is eidas, which denotes a notified eID system under eIDAS ... The `trust_framework` value determines what further data is provided to the claim recipient in the verification element.
+
+    `assurance_level`
+    : OPTIONAL. String determining the assurance level associated with the end-user claims in the respective verified_claims. The value range depends on the respective `trust_framework` value. For example, the trust framework eidas can have the identity assurance levels low, substantial and high. For information on predefined trust framework and assurance level values see https://bitbucket.org/openid/ekyc-ida/wiki/identifiers.
+
+    `assurance_process`
+    : OPTIONAL. JSON object representing the assurance process that was followed. This reflects how the evidence meets the requirements of the `trust_framework` and `assurance_level`. The factual record of the evidence and the procedures followed are recorded in the evidence element; this element is used to cross reference the evidence to the `assurance_process` followed.
+
+      `policy`
+      : OPTIONAL. String representing the standard or policy that was followed.
+
+      `procedure`
+      : OPTIONAL. String representing a specific procedure from the policy that was followed.
+
+    `assurance_details`
+    : OPTIONAL. JSON array denoting the details about how the evidence complies with the policy.
+
+      `assurance_type`
+      : OPTIONAL. String denoting which part of the `assurance_process` the evidence fulfills.
+
+      `assurance_classification`
+      : OPTIONAL. String reflecting how the evidence has been classified or measured as required by the `trust_framework`.
+
+      `evidence_ref`
+      : OPTIONAL. JSON array of the evidence being referred to.
+
+        `check_id`
+        : REQUIRED. Identifier referring to the `check_id` key used in the `check_details` element of members of the evidence array.
+
+        `evidence_metadata`
+        : OPTIONAL. Object indicating any metadata about the evidence that is required by the `assurance_process` in order to demonstrate compliance with the `trust_framework`.
+
+          `evidence_classification`
+          : OPTIONAL. String indicating how the process demonstrated by the `check_details` for the evidence is classified by the `assurance_process` in order to demonstrate compliance with the `trust_framework`.
+
+    `time`
+    : OPTIONAL. Time stamp in ISO 8601 YYYY-MM-DDThh:mm[:ss]TZD format representing the date and time when the identity verification process took place.
+
+    `verification_process`
+    : OPTIONAL. Unique reference to the identity verification process as performed by the claim provider. Used for identifying and retrieving details in case of disputes or audits.
+
+    `evidence`
+    : OPTIONAL. JSON array containing information about the evidence the claim provider used to verify the end-user's identity as separate JSON objects. Every object contains the property type which determines the type of the evidence.
+
+      `type`
+      : REQUIRED. The value defines the type of the evidence. The following types of evidence are defined.
+
+        `document`
+        : Verification based on the content of a physical or electronic document provided by the end-user.
+
+          `check_method`
+          : REQUIRED. String representing the check done, this includes processes such as checking the authenticity of the document, or verifying the user's biometric against an identity document. For information on predefined check_details values see https://bitbucket.org/openid/ekyc-ida/wiki/identifiers.
+
+          `check_id`
+          : OPTIONAL. Identifier referring to the event where a check (either verification or validation) was performed. The claim provider shall ensure that this is present when `evidence_ref` element is used. The claim provider shall ensure that the transaction identifier can be resolved into transaction details during an `audit`.
+
+          `check_details`
+          : OPTIONAL. JSON array representing the checks done in relation to the evidence.
+
+          `organization`
+          : OPTIONAL. String denoting the legal entity that performed the check. This should be included if the claim provider did not perform the check itself.
+
+          `time`
+          : OPTIONAL. Time stamp in ISO 8601 YYYY-MM-DDThh:mm[:ss]TZD format `representing` the date when the check was completed.
+
+          `document_details`
+          : OPTIONAL. JSON object representing the document used to perform the identity verification. It consists of the following properties:
+
+            `type`
+            : REQUIRED. String denoting the type of the document. For information on predefined document values see https://bitbucket.org/openid/ekyc-ida/wiki/identifiers.
+
+            `document_number`
+            : OPTIONAL. String representing an identifier/number that uniquely identifies a document that was issued to the end-user. This is used on one document and will change if it is reissued.
+
+            `serial_number`
+            : OPTIONAL. String representing an identifier/number that identifies the document irrespective of any personalization information.
+
+            `date_of_issuance`
+            : OPTIONAL. The date the document was issued as ISO 8601 YYYY-MM-DD format.
+
+            `date_of_expiry`
+            : OPTIONAL. The date the document will expire as ISO 8601 YYYY-MM-DD format.
+
+            `issuer`
+            : OPTIONAL. JSON object containing information about the issuer of this document.
+
+              `name`
+              : OPTIONAL. Designation of the issuer of the document.
+
+              `address`
+              : OPTIONAL. All elements of the OpenID Connect address claim.
+
+              `country_code`
+              : OPTIONAL. String denoting the country or supranational organization that issued the document as ISO 3166/ICAO 3-letter codes. 2-letter ICAO codes may be used in some circumstances for compatibility reasons.
+
+              `jurisdiction`
+              : OPTIONAL. String containing the name of the region(s)/state(s)/province(s)/municipality(ies) that issuer has jurisdiction over.
+
+            `derived_claims`
+            : OPTIONAL. JSON object containing claims about the end-user which were derived from the document described in the evidence array member it is part of ... The `derived_claims` element may contain any of the claims defined in ... OpenID Connect \[or] OpenID4IDAClaims \[as well as] other end-user claims ... derived from the document described in the evidence array member it is part of. End-User claims contained in a `derived_claims` element shall have corresponding claims in the claims element of `verified_claims`.
+
+        `electronic_record`
+        : Verification based on data or information obtained electronically from an approved, recognized, regulated or certified source.
+
+          `check_method`
+          : REQUIRED. String representing the check done. For information on predefined check_method values see https://bitbucket.org/openid/ekyc-ida/wiki/identifiers.
+
+          `check_id`
+          : OPTIONAL. Identifier referring to the event where a check (either verification or validation) was performed. The claim provider shall ensure that this is present when `evidence_ref` element is used. The claim provider shall ensure that the transaction identifier can be resolved into transaction details during an audit.
+
+          `organization`
+          : OPTIONAL. String denoting the legal entity that performed the check. This should be included if the claim provider did not perform the check itself.
+
+          `time`
+          : OPTIONAL. Time stamp in ISO 8601 YYYY-MM-DDThh:mm[:ss]TZD format representing the date when the check was completed.
+
+          `record`
+          : OPTIONAL. JSON object representing the record used to perform the identity verification.
+
+            `type`
+            : REQUIRED. String denoting the type of electronic record. For information on predefined identity evidence values see https://bitbucket.org/openid/ekyc-ida/wiki/identifiers.
+
+            `created_at`
+            : OPTIONAL. The time the record was created as ISO 8601 YYYY-MM-`DDThh`:mm[:ss]TZD format.
+
+            `date_of_expiry`
+            : OPTIONAL. The date the evidence will expire as ISO 8601 YYYY-MM-DD format.
+
+          `source`
+          : OPTIONAL. JSON object containing information about the source of this record.
+
+            `name`
+            : OPTIONAL. Designation of the source of the `electronic_record`.
+
+            `address`
+            : OPTIONAL. All elements of the OpenID Connect address claim.
+
+            `country_code`
+            : OPTIONAL. String denoting the country or supranational organization that issued the evidence as ISO 3166/ICAO 3-letter codes. 2-letter ICAO codes may be used in some circumstances for compatibility reasons.
+
+            `jurisdiction`
+            : OPTIONAL. String containing the name of the region(s) / state(s) / province(s) / municipality(ies) that source has jurisdiction over.
+
+          `derived_claims`
+          : OPTIONAL. JSON object containing claims about the end-user which were derived from the electronic record described in the evidence array member it is part of. The `derived_claims` element may contain any of the claims defined ... OpenID Connect \[or] OpenID4IDAClaims \[as well as] other end-user claims ... derived from the electronic record described in the evidence array member it is part of.
+
+        `vouch`
+        : Verification based on an attestation given by an approved or recognized natural person declaring they believe that the claim(s) presented by the end-user are, to the best of their knowledge, genuine and true.
+
+          `check_method`: REQUIRED. String representing the check done, this includes processes such as checking the authenticity of the vouch, or verifying the user as the person referenced in the vouch. For information on predefined check_method values see https://bitbucket.org/openid/ekyc-ida/wiki/identifiers.
+
+          `check_id`
+          : OPTIONAL. Identifier referring to the event where a check (either verification or validation) was performed. The claim provider shall ensure that this is present when `evidence_ref` element is used. The claim provider shall ensure that the transaction identifier can be resolved into transaction details during an audit.
+
+          `organization`
+          : OPTIONAL. String denoting the legal entity that performed the check. This should be included if the claim provider did not perform the check itself.
+
+          `time`
+          : OPTIONAL. Time stamp in ISO 8601 YYYY-MM-DDThh:mm[:ss]TZD format `representing` the date when the check was completed.
+
+          `attestation`
+          : OPTIONAL. JSON object representing the attestation that is the basis of the vouch.
+
+            `type`
+            : REQUIRED. String denoting the type of vouch. For information on predefined vouch values see https://bitbucket.org/openid/ekyc-ida/wiki/identifiers.
+
+            `reference_number`
+            : OPTIONAL. String representing an identifier/number that uniquely identifies a vouch given about the end-user.
+
+            `date_of_issuance`
+            : OPTIONAL. The date the vouch was made as ISO 8601 YYYY-MM-DD `format`.
+
+            `date_of_expiry`
+            : OPTIONAL. The date the evidence will expire as ISO 8601 YYYY-MM-DD format.
+
+          `voucher`
+          : OPTIONAL. JSON object containing information about the entity giving the vouch.
+
+            `name`
+            : OPTIONAL. String containing the name of the person giving the vouch/reference in the same format as defined in OpenID Connect.
+
+            `birthdate`
+            : OPTIONAL. String containing the birthdate of the person giving the vouch/reference in the same format as defined in OpenID Connect.
+
+            `address`
+            : OPTIONAL. All elements of the OpenID Connect address claim.
+
+            `country_code`
+            : OPTIONAL. String denoting the country or supranational organization that issued the evidence as ISO 3166/ICAO 3-letter codes. 2-letter ICAO codes may be used in some circumstances for compatibility reasons.
+
+            `occupation`
+            : OPTIONAL. String containing the occupation or other authority of the person giving the vouch/reference.
+
+            `organization`
+            : OPTIONAL. String containing the name of the organization the voucher is representing.
+
+          `derived_claims`
+          : OPTIONAL. JSON object containing claims about the end-user which were derived from the vouch described in the evidence array member it is part of (an example is presented later in this document). The `derived_claims` element may contain any of the claims defined in ... OpenID Connect \[or] OpenID4IDAClaims \[as well as] other end-user claims ... derived from the vouch described in the evidence array member it is part of.
+
+        `electronic_signature`
+        : Verification based on the use of an electronic signature that can be uniquely linked to the end-user and is capable of identifying the signatory.
+
+          `signature_type`
+          : REQUIRED. String denoting the type of signature used as evidence. The value range might be restricted by the respective trust framework.
+
+          `issuer`
+          : REQUIRED. String denoting the certification authority that issued the signer's certificate.
+
+          `serial_number`
+          : REQUIRED. String containing the serial number of the certificate used to sign.
+
+          `created_at`
+          : OPTIONAL. The time the signature was created as ISO 8601 YYYY-MM-DDThh:mm[:ss]TZD format.
+
+          `derived_claims`
+          : OPTIONAL. JSON object containing claims about the end-user which were derived from the electronic signature described in the evidence array member it is part of. The `derived_claims` element may contain any of the claims defined in ... OpenID Connect \[or] OpenID4IDAClaims \[as well as] other end-user claims ... derived from the electronically signed object described in the evidence array member it is part of
+
+      `attachments` (openid-ida-verified-claims-1_0; @openid-connect-4-ida-attachments-1_0)
+      : OPTIONAL. Array of JSON objects representing attachments like photocopies of documents or certificates. (@openid-connect-4-ida-attachments-1_0: This document allows for two types, "Embedded" or "External".)
+
+        - Embedded attachments: All the information of the attached artifact (including the content itself) is provided within a JSON object.
+
+          `content_type`
+          : REQUIRED. Content (MIME) type of the document. Multipart or message media types are not allowed.
+
+          `content`
+          : REQUIRED. Base64 encoded representation of the document content.
+
+          `type`
+          : OPTIONAL. A type identifier that indicates the type of attachment contained in the content element.
+
+          `desc`
+          : OPTIONAL. Description of the document. This can be the filename or just an explanation of the content.
+
+        - External attachments are similar to distributed claims as defined in [OpenID] in that the binary content is accessible as a referenced resource that is separate from the JSON object. The difference is that there are additional elements that provide more certainty that the binary object returned is the one intended when the assertion containing the attachment was created. The reference to the external attachment is provided in a JSON object
+
+          `digest`
+          : REQUIRED. JSON object containing details of a cryptographic hash of the document content taken over the bytes of the payload .
+
+            `alg`
+            : REQUIRED. Specifies the algorithm used for the calculation of the cryptographic hash. The algorithm has been negotiated previously between RP and OP during client registration or management.
+
+            `value`
+            : REQUIRED. Base64-encoded [RFC4648] bytes of the cryptographic hash.
+
+          `url`
+          : REQUIRED. OAuth 2.0 [RFC6749] protected resource endpoint from which the attachment can be retrieved. The endpoint URL shall return the attachment whose cryptographic hash matches the value given in the digest element ... Multipart or message media types shall not be used.
+
+          `exp`
+          : OPTIONAL. The expiration time on or after which the external attachment will not be available from the resource endpoint defined in the url element ... Its value shall be a number containing a NumericDate value as per [RFC7519].
+
+          `access_token`
+          : OPTIONAL. Access token as type string enabling retrieval of the attachment from a Resource server at the given url. The attachment shall be requested using the OAuth 2.0 Bearer Token Usage [RFC6750] protocol and the OP shall support this method, unless another token type or method has been negotiated between the OP and the client. Use of other token types is outside the scope of this document. If the `access_token` element is not available or the value of the access_token element is null then the RP shall use the access token issued by the OP in the token response, unless an alternative effective method to protect the url endpoint from unauthorized access has been negotiated between the OP and the client ... Access tokens for external attachments should be bound to the specific resource being requested so that the access token may not be used to retrieve additional external attachments or resources. For example, the value of url could be tied to the access token as audience. This enhances security by enabling the resource server to check whether the audience of a presented access token matches the accessed URL and reject the access when they do not match.
+
+          `type`
+          : OPTIONAL. A type identifier that indicates the type of attachment linked via url element.
+
+          `desc`
+          : OPTIONAL. Description of the document. This can be the filename or just an explanation of the content.

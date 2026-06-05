@@ -1,0 +1,10 @@
+_:message0_interact <http://upm.net/start> "START".
+_:message_0 <http://upm.net/redirect_uri> "string".
+_:message_0 <http://upm.net/response_type> "string".
+_:message_0 <http://upm.net/code_challenge> "string".
+_:message_0 <http://upm.net/code_challenge_method> "string".
+_:message_0 <http://upm.net/client_id> "string".
+_:message_0 <http://upm.net/state> "string".
+_:message_0 <http://upm.net/scope> "string".
+_:message_0 <http://upm.net/resource> "string".
+_:message_0 <http://upm.net/hasDetail> "string".

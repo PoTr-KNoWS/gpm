@@ -1,0 +1,333 @@
+
+## Parties and agents
+
+Next to describing *what* the requested authorization is about (i.e., target and action, cf. supra), a second pillar of most authorization requests conveys *who* they apply to. The different standards address distinct aspects of this, though, so it is important to emphasize the many nuances.
+
+Again, the initial OAuth 2.0 [@rfc6749] only provided a single field for communicating this information: the *client identifier* parameter (`client_id`). Since this parameter was originally an opaque string, only unique within the context of an authorization server, it could only represent clients known to the server beforehand. Later extensions enable clients to register such information on-the-fly [@oauth:registration], or allow the parameter to be a URL, enabling the server to dereference it towards authoritative information about the client [@draft-ietf-oauth-client-id-metadata-document].^[OpenID4VP additionally introduces Client Identifier Prefixes, to differentiate between different origins and formats of identifiers [@openid:vp]
+
+
+### Roles
+
+The OAuth 2.0 Assertion Framework [@rfc7521] is the first extension that enables more elaborate information structures to express assertions, either about the client application (`client_assertion`) -- identified by the `client_id` parameter -- or about "an *authorized accessor* for which the \[authorization] is being requested" [@rfc7521]. The same distinction, between information about the `client` (e.g., key, software class, display parameters) and information about the `user` behind it, is also made by GNAP -- and by UMA, as the *requesting party*. Both specifications emphasize that the latter does not have to be the resource owner themself, but can also be another party, acting as an authorized *delegate*. OAuth 2.0 Token Exchange [@rfc8693] further formalizes this distinction between the *acting party*, who will employ the requested authorization (`actor_token`), and the party on whose behalf the former acts (`subject_token`).
+
+When looking at other standards,[^fn-verifier-client] we note that while the *actor* can be indicated as the *assignee* in ODRL (`odrl:assignee`), and as the *consumer* in DataSpaces (`consumerPid`), neither specification contains a term to indicate the client application. Furthermore, while for certain use cases one could interpret ODRL's *assigner* (`odrl:assigner`) and DataSpaces' *provider* (`providerPid`) as the *subject* party, this equivalence can not be generalized, since the party whose behalf the authorization is requested, the party who assigns the authorization, and the party at which the action(s) will be executed (e.g. resources provided), are not necessarily the same in all use cases.^[ODRL does provide a strong extensibility, enabling profile specifications that add the necessary terminology to describe other kinds of related parties.] We also note that none of the specifications have considered **(A)** cases in which the *requesting party is not the actor* who will be executing the authorized action(s), or in which the *execution involves multiple actors*; **(B)** cases in which the client application interacting with the authorization server is *not the application that will execute the action(s)*, or in which the *execution involves multiple applications*; and **(C)** cases in which *authorization is granted by a delegate* on behalf of another party. Summarizing these roles together with the ones already present in existing specifications, we make the following conceptual distinctions:
+
+  - a *subject*, on whose behalf the authorization is requested;
+  - a *requesting party*, who actually makes the request;
+  - a *client* application, used to make the request;
+  - *actors*, who are *assigned* authorized actions (e.g., data consumers);
+  - *agents* (applications) that will execute the actions;
+  - a *controller*, who *assigns* authorized actions (e.g., data providers);
+  - an *owner*, on whose behalf authorization is ultimately assigned.
+
+  [^fn-verifier-client]: We refrain from including OpenID4VP in the main text, since we believe its model to be inconsistent (with respect to party- and agent-related information). While OpenID *syntactically* distinguishes self-asserted `client_metadata` about *technical capabilities* (e.g., keys, algorithms, formats) from authoritative `verifier_info` about the *party*, they hold that both  *semantically* pertain to the *Verifier*, which is defined as an OAuth 2.0 *client application*, but is nevertheless attributed some characteristics of a legal person (e.g., intent, legal certificates, retention policies).
+
+
+### Parameters
+
+The OAuth 2.0 extensions and alternative specifications highlighted above each introduce a selection of standard parameters to provide information about the different roles they support.
+
+The most abundant number of parameters traditionally pertain to the **client**.^[None of the existing specifications distinguish the client from ***agents***; authorization is always requested in the context of a single application.] Apart from the client's identifier (OAuth: `client_id`, `client_uri`; GNAP: `client.display.uri`),^[GNAP separates client-related fields in the `client` object, and groups information for human readers under `client.display`.] standard parameters in OAuth (plus extensions) and GNAP include public key metadata (`jwks`, `jwks_uri`; `client.key`), a human-readable name (`client_name`; `client.name`), a logo (`logo_uri`; `client.logo`, `client.logo.uri`), links to policy and terms of service documents (`policy_uri`, `tos_uri`), contact information (`contacts`), and information about the software instance (`software_id`, `software_version`; `client.class_id`, `client.software_id`).
+
+While these parameters cover a lot of traditional use cases, the only specification that provides more flexible extensibility is RFC 7521. It supports an arbitrary `client_assertion` field, the format and interpretation of which is indicated by the `client_assertion_type` parameter (e.g., RFC 7523 uses it to pass client assertions as a JWT).
+
+RFC 7521 can also be seen as the first OAuth extension that separates this authentication of the client from information about the **actor**. Specifically, it provides a similarly flexible field `assertion`, meant to contain authoritative data about an ***authorization grant***: "a credential representing ... \[the] owner's authorization" [@rfc6749]. The format of a grant, which determines how the grant is passed along in the request, is indicated by the `grant_type` parameter. Traditional grant types include a pre-registered password (`client_secret`, `device_secret` [@openid-connect-native-sso-1_0]), an interactively obtained code (`code`, `device_code` [@rfc8628)]), or a refresh token obtained during a previous authorization procedure (`refresh_token`).
+
+UMA and GNAP both follow this separation, and add the possibility to provide multiple credentials -- though only about a single actor. UMA does this asynchronously, allowing multiple requests to each add a `claim_token` (with a `claim_token_format`), or even refer to persistent information provided in a previous request (via the `pct` handle). GNAP, on the other hand, allows the synchronous combination of credentials in the free `user` object, which consists of two arrays: the *informative* `sub_ids` (RFC 9493 pairs of a `format` and an `id` [@rfc9493]), and the *authoritative* `assertions` (pairs of a `format` and a `value`). Note that in both cases, the information about the actor is no longer limited to a previously obtained authorization grant.
+
+While not supporting multiple credentials to be passed, RFC 8693 is the only one that makes the additional distinction between information about the actor and that about the ***subject*** [@rfc8693].^[While GNAP also has a `subject` field, it serves another purpose: to request information about the owner.] Both are communicated as a token (`actor_token` or `subject_token`) which -- in its generic form -- is a JWT of which the `sub` claim is an identifier of the actor/subject, interpreted according to a format indicated by the `actor_token_type` and `subject_token_type` parameters.
+
+ODRL and DataSpaces, on the other hand, do not distinguish the subject, but are the only ones that separate the role of the **actor** (e.g., data consumer) -- indicated with `odrl:assignee` and `consumerPid` -- from that of the **controller** (e.g., data provider) -- refered to with `odrl:assigner` and `providerPid`.^[This separation is implicitly present in the assumption that the controller is the authorization server to which the request is sent, which will be indicated as the `issuer` of an eventually resulting authorization token.] Moreover, information about these parties can be expressed in a flexible manner using arbitrary constraints (i.e., filters) on *collections* of parties.
+
+Two roles that are not explicitly distinguished by any specification, are the ***requesting party*** -- who is assumed to be the *actor* -- and the ***owner*** -- who is assumed to be the *controller*. These parties therefore have also no parameters to describe them.
+
+
+### Abstract syntax {-}
+
+The syntax for specifying the parties and agents involved in an authorization request (and the requested actions), as discussed above, is summarized in [@tbl-roles]. Based on this information, we distinguish the following semantic aspects that can be communicated by (the union of) these formats.
+
+- The **subject**:
+  - arbitrary assertions (`subject_token` with `subject_token_type`)
+- The **requesting party**:
+  - *none* (tied to actor)
+- The **client** (top-level or under `client`/`client.display`):
+  - identifiers (OAuth, CM, GNAP) (`client_id`, `client_uri`, `client.display.uri`)
+  - public key metadata (OAuth, CM, GNAP) (`jwks`, `jwks_uri`; `client.key`)
+  - a human-readable name (`client_name`; `client.name`)
+  - a logo (`logo_uri`; `client.logo`, `client.logo.uri`)
+  - legal documents (`policy_uri`, `tos_uri`)
+  - contact information (`contacts`)
+  - software information (`software_id`, `software_version`; `client.class_id`, `client.software_id`)
+  - arbitrary assertions (`client_assertion` with `client_assertion_type`
+- The **actors** (top-level or under `user`):
+  - identifiers (`sub_ids` pairs of `format` and `id`; `odrl:assignee` and `consumerPid`)
+  - pre-registered password (`client_secret`, `device_secret` [@openid-connect-native-sso-1_0])
+  - interactively obtained code (`code`, `device_code` [@rfc8628)])
+  - a refresh token obtained during a previous authorization procedure (`refresh_token`)
+  - arbitrary assertions (`actor_token` with `actor_token_type`; `assertions` pairs of `format` and `value`; `assertion` with `grant_type`; `claim_token` with `claim_token_format`; `pct`)
+- The **agents**:
+  - *none* (tied to client)
+- The **controller**:
+  - identifiers (`issuer`; `odrl:assigner`, `providerPid`)
+- The **owner**:
+  - *none* (tied to controller)
+
+We now propose an abstract syntax that captures these aspects in a uniform way, mapping each element of the concrete formats onto the abstract model.
+
+
+#### Roles
+
+`Party`
+: A person capable of fulfilling a legal role -- bearing its responsibilities -- with respect to a policy or related operations.
+
+`Agent`
+: An application capable of fulfilling a technical role, with respect to a policy or related operations, on behalf of and under the responsibility of a Party.
+
+The following roles are defined as properties of policies.
+
+`subject`
+: RECOMMENDED UNIQUE Party. The party on whose behalf the authorization is requested. They bear the ultimate responsibility for adherence to an eventual agreement. If the request contains operations without explicit actor, the subject is held to be the actor.
+
+  Mappings:
+  - TE: `Party("subject_token")` (opt. unique) <!-- IS A TOKEN !! -->
+  - GNAP: `Party("user")` (opt. unique)
+  - ODRL: `Party("assignee")` (opt. unique)
+  - DataSpaces: `Party("consumerPid")` (request; req. unique)
+
+`owner`
+: RECOMMENDED UNIQUE Party. The party on whose behalf the authorization is ultimately assigned. If the request contains no explicit owner, the controller is held to be the owner.
+
+  Mappings: *none* (existing specifications only support direct control)
+
+`controller` <!-- alias `assigner` ? `provider` ? -->
+: RECOMMENDED UNIQUE Party. The party who assigns the authorized operation(s).
+
+  Mappings:
+  - ODRL: `Party("assigner")` (req. unique)
+  - DataSpaces: `Party("providerPid")` (req. unique)
+
+The following roles are defined as properties of operations.
+
+`actor` <!-- alias `assignee` ? `consumer` ?  `user` ? -->
+: RECOMMENDED Party[]. The parties to whom authorized operations are assigned.
+
+  Mappings:
+  - TE: `Parties("actor_token")` (req. unique) <!-- IS A TOKEN !! -->
+  - ODRL: `Parties("<rule>.assignee")` (opt. unique)
+
+`agent`
+: RECOMMENDED Agent[]. The software instances that will execute an operation of this rule on behalf of an Actor. <!-- including the client application making the initial request ? -->
+
+  Mappings:
+  - CM: `Agents("client_uri")` (req. unique)
+  - OAuth: `Agents("client_id")` (req. unique)
+  - UMA: `Agents("client_id")` (req. unique)
+  - GNAP: `Agents("client")` (req. unique)
+
+The following properties add information to Parties.
+
+`@id` <!-- alias `(u|p)id` ? `identifier` ? -->
+: RECOMMENDED IRI. An identifier of the Party.
+
+  Mappings: *none* (implicit in mapping of legal roles)
+
+`rdf:type` <!-- alias `format` ? -->
+: RECOMMENDED IRI. The type of the Party. <!-- This determines the format of this object, i.e., how its parameters are to be interpreted. -->
+
+  Mappings: *none* (implicit in mapping of legal roles)
+
+`credential`
+: RECOMMENDED Assertion. An identifier or (formatted) assertion about the Party.
+
+  Mappings: <!-- rfc9635 -->
+  - GNAP: `...("user.sub_ids[*]")` (pairs of `format` and `id`; opt.)
+  - GNAP: `...("user.assertions[*]")` (pairs of `format` and `value`; opt.)
+  - RFC....: `...("assertion")` (...??; opt.)
+
+  <!-- # String values are interpreted as the `value` of an Assertion with the `uri` format, unless a more specific format can unambiguously be derived from the structure of the string or the key used to link them:
+  # - The keys `pid` & `consumerPid` indicate the format `dspace:consumerPid`. -->
+
+  `format`
+  : RECOMMENDED UNIQUE IRI. The format of the identifier or assertion.
+
+    Mappings:
+    - GNAP: <!-- strings -->
+      - `...("user.sub_ids[*].format")` (req. unique)
+      - `...("user.assertions[*].format")` (req. unique)
+
+  `value`
+  : REQUIRED UNIQUE ... (Any). The value of the identifier or assertion.
+
+    Mappings:
+    - GNAP: <!-- strings -->
+      - `...("user.sub_ide[*].id")` (req. unique)
+      - `...("user.assertions[*].value")` (req. unique)
+
+  `...`
+  : OPTIONAL ... (Any). *Additional parameters* of the identifier or assertion.
+
+    Mappings: *none*
+
+<!--
+- identifiers (`sub_ids` ; `odrl:assignee` and `consumerPid`)
+- pre-registered password (`client_secret`, `device_secret` [@openid-connect-native-sso-1_0])
+- interactively obtained code (`code`, `device_code` [@rfc8628)])
+- a refresh token obtained during a previous authorization procedure (`refresh_token`)
+- arbitrary assertions (`actor_token` with `actor_token_type`; `assertions` pairs of `format` and `value`; `assertion` with `grant_type`; `claim_token` with `claim_token_format`; `pct`)
+-->
+<!-- # claim_set?: graph
+# pct?: string # UMA claim set ref -->
+
+The following properties add information to Agents.
+
+`@id` <!-- alias `(u|p)id` ? `identifier` ? -->
+: RECOMMENDED IRI. An identifier of the Agent.
+
+  Mappings:
+
+
+  # `@id`: An identifier of the agent that will perform this operation.
+  #
+  # RECOMMENDED IRI<Agent>
+  # - REQUIRED UNIQUE for OAuth 2.x & UMA (as `[root].client_id`)
+  # - REQUIRED UNIQUE for GNAP (as `[root.client].id`) ?
+  #
+  # Aliases:
+  # - Alt. domain `string` OAuth 2.x & UMA & GNAP
+  # - Alt. key `id` (without '@')
+  # - Alt. key `uri`
+  # - Alt. key `display.uri` for GNAP
+  # - Global (root) key `client_id` for OAuth 2.x & UMA
+  # - Global (root) key `client_uri` for OAuth 2.x & Client Metadata
+  @id: IRI                    # canonical
+  id: IRI | string            # alias
+  uri?: string                # alias
+  display?.uri?: string       # alias: GNAP
+  identifier: string          # alias
+  [root].client_id: string    # alias (global): OAuth 2.x & UMA
+  [root].client_uri?: string  # alias (global): OAuth 2.x Client Metadata
+
+
+
+`rdf:type` <!-- alias `format` ? -->
+: RECOMMENDED IRI. The type of the Agent. <!-- This determines the format of this object, i.e., how its parameters are to be interpreted. -->
+
+  Mappings: *none* (implicit in mapping of technical roles)
+
+
+
+  # `...`: ... of the agent that will perform this operation.
+  #
+  # OPTIONAL IRI<Agent>
+  # - REQUIRED UNIQUE for OAuth/UMA client credentials (as `[root].client_id`)
+  #
+  # Aliases:
+  # - Alt. domain `string` OAuth 2.x & UMA & GNAP
+  # - Global (root) key `client_secret` for OAuth 2.x & UMA
+  ...: ...                        # canonical
+  secret?: string                 # alias
+  [root].client_secret?: string   # alias: OAuth 2.x & UMA
+
+  # `key`: A public key of the agent that will perform this operation.
+  #
+  # RECOMMENDED Key
+  # - REQUIRED UNIQUE for OAuth 2.x & UMA (as `[root].jwks(_uri)`)
+  # - REQUIRED UNIQUE for GNAP (as `[root.client].key`) ?
+  #
+  # Aliases:
+  # - Alt. domain `string` OAuth 2.x & UMA & GNAP
+  # - Global (root) key `client_id` for OAuth 2.x
+  key?: Key | IRI         # canonical (GNAP)
+  [root].jwks?: JWKSet    # alias: OAuth 2.x & UMA
+  [root].jwks_uri?: IRI   # alias: OAuth 2.x & UMA
+
+  # `display`: A non-canonical nested object grouping human-facing info.
+  #
+  # NOT RECOMMENDED object
+  # - RECOMMENDED UNIQUE for GNAP
+  #
+  display?: object            # non-canonical (GNAP)
+
+  # `[param]`: More info about the agent that will perform this operation.
+  #
+  # OPTIONAL any
+  #
+  # Examples:
+  #
+  # A human-readable name for the agent
+  #  name?: string               # canonical
+  #  client_name?: string        # alias: OAuth 2.x Client Metadata
+  #  display?.name?: string      # alias: GNAP
+  #
+  # A logo to display for the agent
+  #  logo?: string               # canonical
+  #  logo_uri?: string           # alias: OAuth 2.x Client Metadata
+  #  display?.logo?: string      # alias
+  #  display?.logo_uri?: string  # alias: GNAP
+  #
+  # A policy document ...
+  #  policy?: uri                # canonical
+  #  policy_uri?: uri            # alias: OAuth 2.x Client Metadata
+  #
+  # A terms of service document
+  #  tos?: uri                   # canonical
+  #  tos_uri?: uri               # alias: OAuth 2.x Client Metadata
+  #
+  # contacts?: string[]         # canonical (OAuth 2.x Client Metadata)
+
+
+
+`credential`
+: RECOMMENDED Assertion. An identifier or (formatted) assertion about the Agent.
+
+  Mappings: <!-- rfc9635 -->
+  - RFC....: `...("client_assertion")` (...??; opt.)
+
+  <!-- # String values are interpreted as the `value` of an Assertion with the `uri` format, unless a more specific format can unambiguously be derived from the structure of the string or the key used to link them:
+  # - The keys `pid` & `consumerPid` indicate the format `dspace:consumerPid`. -->
+
+  `format`
+  : RECOMMENDED UNIQUE IRI. The format of the identifier or assertion.
+
+    Mappings:
+    - GNAP: <!-- strings -->
+      - `...("user.sub_ids[*].format")` (req. unique)
+      - `...("user.assertions[*].format")` (req. unique)
+
+  `value`
+  : REQUIRED UNIQUE ... (Any). The value of the identifier or assertion.
+
+    Mappings:
+    - GNAP: <!-- strings -->
+      - `...("user.sub_ide[*].id")` (req. unique)
+      - `...("user.assertions[*].value")` (req. unique)
+
+  `...`
+  : OPTIONAL ... (Any). *Additional parameters* of the identifier or assertion.
+
+    Mappings: *none*
+
+
+  class?: AgentClass
+  software?: AgentClass
+
+[policy.rule.operation.agent.class]
+
+  # format?: string
+  # value?: string
+  # [param]?: any
+
+  #@id?: uri
+
+  id?: string
+  [policy.rule.agent].class_id?: string # client software(+version) indication
+  [policy.rule.agent].software_id?: string # OAUTH client info
+
+  version?: string
+  [policy.rule.agent].software_version?: string # OAUTH client info
+
+
+
+
+  - a *requesting party*, who actually makes the request;
+  - a *client* application, used to make the request;

@@ -1,0 +1,10 @@
+
+## Introduction {-}
+
+The past two decades, we have witnessed the inception and maturation of open authentication and authorization frameworks for the Web, going beyond HTTP's `Authorization` header and its initial `WWW-Authenticate` schemes (i.e., `Basic`, `Digest`) [@rfc1945;@rfc2069;@rfc2616;@rfc2617]. If the infancy of these frameworks ran from the baptism of OASIS's[^Organization for the Advancement of Structured Information.] SAML 1.0 and XACML 1.0, and Internet2's Shibboleth 1.0 (2002--2003), to their confirmation in SAML 2.0, XACML 2.0, and Shibboleth 2.0 (2005--2008), then adolescence led them through the troublesome years of OpenID 2.0 and OAuth 1.0 (2007--2010), towards the confidence of early adulthood radiated by XACML 3.0, OAuth 2.0 and OpenID Connect (2012--2014). Since then, however, opposing academic, economic, and political incentives seem to have resulted in a long-stretched mid-life crisis: the misappropriation of OAuth authorization primitives in OpenID's authentication framework; the explosion of unofficial and inactive but de facto standard OAuth extensions; the simultaneous development of almost identical yet incompatible evolution paths (OAuth 2.1 versus GNAP; OpenID's Digital Credential Protocols versus OpenID Connect with Identity Assurance, Claims Aggregation, and Self-Issued OpenID Provider; multiple Data Spaces authorization protocols) ... It is no wonder that interoperability remains limited to ...
+
+<!-- add ODRL ~2016 ? -->
+
+...
+
+In this paper ...

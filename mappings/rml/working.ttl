@@ -1,0 +1,46 @@
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rml: <http://w3id.org/rml/> .
+@prefix : <http://example.com/ns#> .
+
+:jsonFile a rml:Source ;
+  rml:path "input1.json" .
+
+:jsonSource a rml:LogicalSource ;
+  rml:source :jsonFile ;
+  rml:referenceFormulation rml:JSONPath ;
+  rml:iterator "$.[*]" .
+
+:jsonView a rml:LogicalView ;
+  rml:viewOn :jsonSource ;
+  rml:field [
+    a rml:ExpressionField ;
+    rml:fieldName "client_id" ;
+    rml:reference "$.client_id" ;
+  ], [
+    a rml:IterableField ;
+    rml:fieldName "detail" ;
+    rml:referenceFormulation rml:JSONPath ;
+    rml:iterator "$.authorization_details[*]" ;
+    rml:field [
+      a rml:ExpressionField ;
+      rml:fieldName "type" ;
+      rml:reference "$.type" ;
+    ] ;
+  ] .
+
+:triplesMapPerson a rml:TriplesMap ;
+  rml:logicalSource :jsonView ;
+  rml:subjectMap [
+    rml:template "http://example.org/person/{client_id}" ;
+  ] ;
+  rml:predicateObjectMap [
+    rml:predicate :hasName ;
+    rml:objectMap [
+      rml:reference "client_id" ;
+    ] ;
+  ], [
+    rml:predicate :hasDetail ;
+    rml:objectMap [
+      rml:reference "detail.type" ;
+    ] ;
+  ] .

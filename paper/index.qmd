@@ -1,0 +1,21 @@
+---
+title: "Access requests"
+---
+
+{{< include _parts/sec-intro.qmd >}}
+
+
+# Information in a request
+
+Starting from the OAuth 2.x token request -- the archetypal yet somewhat ill-named authorization request -- we discern a number of functions the contents of the message serve.
+
+{{< include _parts/sec-target-action.qmd >}}
+
+
+<!-- rdf:type/@type/type == format ? profile ? -->
+
+\appendix
+
+{{< include _parts/app-mappings.qmd >}}
+
+<!-- {{< include _parts/app-requests.qmd >}} -->

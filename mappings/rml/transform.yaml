@@ -1,0 +1,38 @@
+
+prefixes:
+
+  ex: http://www.example.com/
+  e: http://myontology.com/
+  dbo: http://dbpedia.org/ontology/
+  grel: http://users.ugent.be/~bjdmeest/function/grel.ttl#
+
+mappings:
+
+  message:
+
+    sources:
+      - access: message.json
+        referenceFormulation: json
+
+    graphs: ex:Characters
+
+    s: ex:$(id)
+    po:
+      - [ a, schema:Person ]
+      - p: schema:givenName
+        o:
+          value: $(firstname)
+          language: en
+        graphs: ex:Names
+      - p: e:debutEpisode
+        o:
+          value: $(debut episode)
+          datatype: xsd:number
+    p: e:appearsIn
+    o:
+      mapping: episode
+      condition:
+        function: equal
+        parameters:
+          - [str1, $(debut episode), s]
+          - [str2, $(number), o]

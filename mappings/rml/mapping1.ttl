@@ -1,0 +1,184 @@
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rml: <http://w3id.org/rml/> .
+@prefix upm: <http://upm.net/> .
+@prefix :    <urn:example:> .
+
+_:request a rml:LogicalSource ;
+  rml:path "input1.json" .
+
+_:messages a rml:LogicalSource ;
+  rml:source _:request ;
+  rml:referenceFormulation rml:JSONPath ;
+  rml:iterator "$.[*]" .
+  # rml:iterator "$" .
+
+_:message a rml:LogicalView ;
+  rml:viewOn _:messages ;
+  rml:field
+  # [
+  #   rml:fieldName "id" ;
+  #   rml:template "urn:test:{id}" ;
+  # ],
+  [
+    rml:fieldName "interact" ;
+    rml:reference "$.foo" ;
+  ], [
+  #   rml:fieldName "policy" ;
+  #   # rml:referenceFormulation rml:JSONPath ;
+  #   # rml:iterator "$.authorization_details[*]" ;
+  #   rml:field [
+  #     rml:fieldName "type" ;
+  #     rml:reference "$.type" ;
+  #   ] ;
+  # ], [
+    rml:fieldName "redirect_uri" ;
+    rml:reference "$.redirect_uri" ;
+  ], [
+    rml:fieldName "redirect_uri" ;
+    rml:reference "$.redirect_uri" ;
+  ],
+
+  [
+    rml:fieldName "redirect_uri" ;
+    rml:reference "$.redirect_uri" ;
+  ], [
+    rml:fieldName "response_type" ;
+    rml:reference "$.response_type" ;
+  ], [
+    rml:fieldName "code_challenge" ;
+    rml:reference "$.code_challenge" ;
+  ], [
+    rml:fieldName "code_challenge_method" ;
+    rml:reference "$.code_challenge_method" ;
+  ], [
+    rml:fieldName "client_id" ;
+    rml:reference "$.client_id" ;
+  ], [
+    rml:fieldName "state" ;
+    rml:reference "$.state" ;
+  ], [
+    rml:fieldName "scope" ;
+    rml:reference "$.scope" ;
+  ], [
+    rml:fieldName "resource" ;
+    rml:reference "$.resource" ;
+  ], [
+    rml:fieldName "detail" ;
+    rml:referenceFormulation rml:JSONPath ;
+    rml:iterator "$.authorization_details[*]" ;
+    rml:field [
+      a rml:ExpressionField ;
+      rml:fieldName "type" ;
+      rml:reference "$.type" ;
+    ] ;
+  ] .
+
+_:interactMap a rml:TriplesMap ;
+  rml:logicalSource _:message ;
+  rml:subjectMap [
+    rml:template "message{#}_interact" ;
+    rml:termType rml:BlankNode ;
+  ] ;
+  rml:predicateObjectMap
+  [
+    rml:predicate upm:start ;
+    rml:objectMap [ rml:constant "START" ] ;
+  ] .
+
+_:messageMap a rml:TriplesMap ;
+  rml:logicalSource _:message ;
+  rml:subjectMap [
+    rml:template "message_{#}" ;
+    rml:termType rml:BlankNode ;
+  ] ;
+  rml:predicateObjectMap
+  [
+    rml:predicate upm:redirect_uri ;
+    rml:objectMap [ rml:reference "redirect_uri" ] ;
+  ], [
+    rml:predicate upm:response_type ;
+    rml:objectMap [ rml:reference "response_type" ] ;
+  ], [
+    rml:predicate upm:code_challenge ;
+    rml:objectMap [ rml:reference "code_challenge" ] ;
+  ], [
+    rml:predicate upm:code_challenge_method ;
+    rml:objectMap [ rml:reference "code_challenge_method" ] ;
+  ], [
+    rml:predicate upm:client_id ;
+    rml:objectMap [ rml:reference "client_id" ] ;
+  ], [
+    rml:predicate upm:state ;
+    rml:objectMap [ rml:reference "state" ] ;
+  ], [
+    rml:predicate upm:scope ;
+    rml:objectMap [ rml:reference "scope" ] ;
+  ], [
+    rml:predicate upm:resource ;
+    rml:objectMap [ rml:reference "resource" ] ;
+  ], [
+    rml:predicate upm:hasDetail ;
+    rml:objectMap [ rml:reference "detail.type" ] ;
+  ], [
+    rml:predicate upm:id ;
+    rml:objectMap [
+      rml:functionExecution [
+        rml:function "controls_if" ;
+        rml:input [
+          rml:parameter "bool_b" ;
+          rml:inputValueMap [
+            rml:reference "interact"
+          #   rml:functionExecution [
+          #     rml:function "isNull" ;
+          #     rml:input [
+          #       rml:parameter "str" ;
+          #       rml:inputValueMap [
+          #         rml:reference "interact"
+          #       ]
+          #     ]
+          #   ]
+          ]
+        ], [
+          rml:parameter "any_true" ;
+          rml:inputValue "IS_NULL"
+        ], [
+          rml:parameter "any_false" ;
+          rml:inputValue "NOT_NULL"
+        ]
+      ] ;
+    ] ;
+  ] .
+
+
+
+  # [
+  #   rml:predicate upm:VOND ;
+  #   rml:objectMap [
+  #     rml:functionExecution [
+  #       rml:function "trueCondition" ;
+  #       rml:input [
+  #         rml:parameter "strBoolean" ;
+  #         rml:inputValueMap [
+  #           rml:functionExecution [
+  #             rml:function "isNull" ;
+  #             rml:input [
+  #               rml:parameter "str" ;
+  #               rml:inputValueMap [
+  #                 rml:reference "id"
+  #               ]
+  #             ]
+  #           ]
+  #         ]
+  #       ], [
+  #         rml:parameter "str" ;
+  #         rml:inputValue "HERE"
+  #       ]
+  #     ] ;
+  #   ] ;
+  # ],
+  # [
+  #   rml:predicate upm:VALUE ;
+  #   rml:objectMap [
+  #     rml:reference "id" ;
+  #   ] ;
+  # ],

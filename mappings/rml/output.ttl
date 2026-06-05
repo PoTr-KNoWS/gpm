@@ -1,0 +1,6 @@
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rml: <http://w3id.org/rml/> .
+@prefix upm: <urn:upm:> .
+@base <urn:example:> .
+@prefix :    <> .
+

@@ -1,0 +1,40 @@
+
+# Mappings {.appendix}
+
+`str(path)`
+: Reads JSON value at `path`; if the value is not a string, the mapping fails. Otherwise, returns the string.
+
+  `str'(path)(term)`
+  : Writes the term `term` to `path` as a JSON string.
+
+`iri(path)`
+: Reads JSON value at `path`; if the value is not a string, the mapping fails. If the value represents an IRI, returns the IRI. Otherwise, prepends the *generic domain* to the string, then returns it as an IRI.
+
+  `iri'(path)(term)`
+  : Writes the IRI `term` to `path` as a JSON string. If the IRI begins with the *generic domain*, the prefix is stripped.
+
+`node(class)(path)`
+: Reads JSON value at `path`. Returns a node of type `class`. If the value is a JSON string, sets the node's identifier to `iri(path)`.
+
+  `node'(class)(path)(term)`
+  : If the node `term` has a single identifier as its only attribute apart from `@type`, writes the identifier to `path` as a JSON string. Otherwise calls `node''(class)(path)(term)`.
+
+  `node''(class)(path)(term)`
+  : Writes the node `term` to `path` as a JSON object, with the field `@type` set to `class`.
+
+`array(map)(path)`
+: Reads JSON value at `path`. If the value is not a JSON array, interprets it as a singleton array. Maps each element of the resulting array with `map(path)`. Returns the mapped array.
+
+  `array'(map')(path)(terms)`
+  : If `terms` is a singleton, writes the only element `term` to `path` as a JSON value, with `map'(path)(term)`. Otherwise calls `array''(map')(path)(terms)`.
+
+  `array''(map')(path)(terms)`
+  : Writes the terms `terms` to `path` as a JSON array, mapping each element `term` to a value with `map'(path)(term)`.
+
+We further define the following aliases:
+
+  - `Party = node("Party")`
+  - `Parties = array(node("Party"))`
+  - `Agents = array(node("Agent"))`
+  - `Actions = array(node("Action"))`
+  - `Assets = array(node("Asset"))`

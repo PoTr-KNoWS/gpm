@@ -1,0 +1,12 @@
+{
+  "contacts": "array[string]",
+  "client_name": "string",
+  "client_uri": "string",
+  "logo_uri": "string",
+  "tos_uri": "string",
+  "policy_uri": "string",
+  "jwks": "JWKSet",
+  "jwks_uri": "string",
+  "software_id": "string",
+  "software_version": "string"
+}

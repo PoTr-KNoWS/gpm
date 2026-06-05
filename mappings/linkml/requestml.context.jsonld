@@ -1,0 +1,223 @@
+{
+  "@context": {
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "upm": "http://w3id.org/upm#",
+    "msg": "urn:example/message/",
+    "assigner": "urn:example/parties/2",
+    "assignee": "urn:example/parties/1",
+    "client": "assignee:agents/1",
+    "@vocab": "http://w3id.org/upm#",
+    "@base": "urn:example/",
+    "interact": {
+      "@id": "upm:interact",
+      "@type": "@id",
+      "@context": {
+        "start": {
+          "@type": "@id",
+          "@context": {
+            "method": { "@type": "startMethod" }
+          }
+        },
+        "finish": {
+          "@type": "@id",
+          "@context": {
+            "method": { "@type": "finishMethod" },
+            "uri": { "@type": "@id" },
+            "state": { "@type": "xsd:string" },
+            "nonce": { "@type": "xsd:string" },
+            "challenge": { "@type": "xsd:string" },
+            "challenge_method": { "@type": "challengeMethod" }
+          }
+        }
+      }
+    },
+    "policy": {
+      "@type": "@id",
+      "@context": {
+        "profile": { "@type": "@id" },
+        "inheritFrom": { "@type": "@id" },
+        "conflict": { "@type": "conflictTerm" },
+        "grant": { "@type": "@id" },
+        "record": {
+          "@type": "@id",
+          "@context": {
+            "flags": { "@type": "recordFlag" }
+          }
+        },
+        "timestamp": { "@type": "xsd:datetime" },
+        "condition": { "@type": "@id" },
+        "resolution": { "@type": "@id" },
+        "constraint": { "@type": "@id" },
+        "rule": {
+          "@context": {
+            "assigner": { "@type": "@id" },
+            "assignee": {
+              "@type": "@id",
+              "@context": {
+                "value": {
+                  "@id": "rdf:value",
+                  "@type": "@id"
+                },
+                "refinement": { "@type": "@id" },
+                "credential": {
+                  "@type": "@id",
+                  "@context": {
+                    "format": { "@type": "credentialFormat" },
+                    "value": { "@id": "rdf:value" }
+                  }
+                }
+              }
+            },
+            "operation":  {
+              "@type": "@id",
+              "@context": {
+                "target": {
+                  "@type": "@id",
+                  "@context": {
+                    "format": { "@type": "assetFormat" },
+                    "partOf": { "@type": "@id" },
+                    "source": { "@type": "@id" },
+                    "refinement": { "@type": "@id" }
+                  }
+                },
+                "action": {
+                  "@type": "@id",
+                  "@context": {
+                    "format": { "@type": "actionFormat" },
+                    "value": { "@id": "rdf:value" }
+                  }
+                },
+                "agent": {
+                  "@type": "@id",
+                  "@context": {
+                    "key": { "@type": "@id" },
+                    "class": { "@type": "@id" },
+                    "name": { "@type": "xsd:string" },
+                    "logo": { "@type": "@id" },
+                    "tos": { "@type": "@id" },
+                    "policy": { "@type": "@id" },
+                    "contacts": { "@type": "@id" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "@graph": [
+    {
+      "@id": "message",
+      "@type": "PolicyMessage",
+      "interact": {
+        "@id": "msg:interaction",
+        "@type": "Interaction",
+        "start": {
+          "@id": "msg:interaction/start",
+          "@type": "InteractionStart",
+          "method": "redirect"
+        },
+        "finish": {
+          "@id": "msg:interaction/finish",
+          "@type": "InteractionFinish",
+          "method": "redirect",
+          "uri": "callback_uri",
+          "state": "y83tcurxidty83bhnj2ic9hb",
+          "nonce": "0498tyihe",
+          "challenge": "10rbfhw8bhcgnh9xwjecfhbvwv",
+          "challenge_method": "gibberish"
+        }
+      },
+      "policy": {
+        "@id": "msg:policies/1",
+        "@type": "Policy",
+        "profile": "upm:default_profile",
+        "inheritFrom": "upm:empty_policy",
+        "conflict": "talk_it_out",
+        "grant": {
+          "@id": "msg:policies/1/grants/1",
+          "@type": "Grant"
+        },
+        "record": {
+          "@id": "msg:policies/1/records/1",
+          "@type": "RecordFormat",
+          "flags": "bearer"
+        },
+        "timestamp": "2020-01-31T12:00:00Z",
+        "rule": {
+          "@id": "msg:policies/1/rules/1",
+          "@type": "Rule",
+          "@comment": "instantiated as perm|proh|obl",
+          "assigner": {
+            "@id": "parties/2",
+            "@type": "Party"
+          },
+          "assignee": {
+            "@id": "parties/1",
+            "@type": "Party",
+            "credential": {
+              "@id": "assignee/creds/1",
+              "@type": "Credential",
+              "format": "just_a_string",
+              "value": "I am Wouter"
+            }
+          },
+          "operation": {
+            "@id": "msg:policies/1/rules/1/operation",
+            "@type": "Operation",
+            "target": {
+              "@id": "assets/3",
+              "@type": "Asset",
+              "format": "odrl",
+              "partOf": "assets/1",
+              "source": "assets/2",
+              "refinement": {
+                "@id": "assets/2/constraints/2",
+                "@type": "Constraint"
+              }
+            },
+            "action": {
+              "@id": "assets/1/actions/2",
+              "@type": "Action",
+              "rdf:value": "assets/1/actions/1",
+              "refinement": {
+                "@id": "assets/1/actions/1/constraints/1",
+                "@type": "Constraint"
+              }
+            },
+            "agent": {
+              "@id": "assignee/agents/1",
+              "@type": "Agent",
+              "key": "client/keys/1",
+              "class": {
+                "software": "client/software",
+                "version": "client/version"
+              },
+              "name": "Some software agent TM",
+              "logo": "client/logo",
+              "policy": "client/policy_text",
+              "tos": "client/terms_of_service",
+              "contacts": [
+                "assignee"
+              ]
+            }
+          },
+          "condition": {
+            "@id": "msg:policies/1/rules/1/conditions/1",
+            "@type": "Rule"
+          },
+          "resolution": {
+            "@id": "msg:policies/1/rules/1/resolutions/1",
+            "@type": "Rule"
+          },
+          "constraint": {
+            "@id": "msg:policies/1/rules/1/constraints/1",
+            "@type": "Constraint"
+          }
+        }
+      }
+    }
+  ]
+}
