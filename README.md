@@ -1,5 +1,5 @@
 
-# Unified Policy Management
+# Generalized Policy Management
 
 This repository contains research materials on models and languages to describe policy management -- in particular the messages involved in negotiation processes for access and usage policies.
 
@@ -10,8 +10,8 @@ This repository contains research materials on models and languages to describe 
 The contents of this repo are structured as follows:
 
 - [./brainstorms/](./brainstorms/) contains working documents (summaries, comparisons, sketches ...);
-- [./paper/](./paper/) contains the initial draft of a paper on a unified model;
-- [./mappings/](./mappings/) contains several technical mappings of different models and languages to the unified one.
+- [./paper/](./paper/) contains the initial draft of a paper on a general model;
+- [./mappings/](./mappings/) contains several technical mappings of different models and languages to the general one.
 
 ### Tooling
 
