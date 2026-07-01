@@ -1,5 +1,7 @@
+**/*.quarto_ipynb
+.quarto/
 .vale/*
 !.vale/config/
-.quarto/
 *_files/
 *.html
+*.pdf

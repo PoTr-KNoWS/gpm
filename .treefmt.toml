@@ -1,27 +1,7 @@
 
-# formatters = ["gofmt", "prettier"] # formatters to apply (all by default)
-# excludes = ["*.md", "*.gif"] # globs to exclude
-
-# tree-root = "/tmp/foo" # root directory (repo by default)
-# tree-root-file = ".git/config" # file that indicates root (if not set)
-# tree-root-cmd = "git rev-parse --show-toplevel" # command that indicates root
-# walk = "filesystem" # traversal algorithm (auto|git|jujutsu|filesystem)
-
-# allow-missing-formatter = true # error if formatter is missing
-# fail-on-change = true # error on changes during execution
-# on-unmatched = "info" # log level for paths not matching any formatter
-# cpu-profile = ./cpu.pprof # where to write cpu profile
-# verbose = 2 # log verbosity
-
-# [formatter.mylanguage]
-# command = "command-to-run" # formatter command
-# options = [] # cli options
-# includes = [ "*.<language-extension>" ] # globs to include
-# excludes = [] # globs to exclude
-# priority = 0 # order when multiple formatter matches (default 0 is highest)
-
 [formatter.vale]
-command = "vale" # formatter command
-options = [] # cli options
-includes = [ "*.qmd" ] # globs to include
-excludes = [] # globs to exclude
+command = "vale"        # formatter command
+options = []            # cli options
+includes = [ "*.qmd" ]  # globs to include
+excludes = []           # globs to exclude
+priority = 0            # if multiple formatters

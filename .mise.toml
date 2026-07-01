@@ -1,6 +1,13 @@
+
 [tools]
 "aqua:numtide/treefmt" = "2.4.0"
 go = "latest"
 "pipx:quarto-cli" = "latest"
 "pipx:rdfizer" = "latest"
 vale = "latest"
+
+[tasks.setup]
+run = [
+  "mise bootstrap",
+  "vale sync"
+]
