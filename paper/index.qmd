@@ -1,9 +1,5 @@
----
-title: "Access requests"
----
 
 {{< include _parts/sec-intro.qmd >}}
-
 
 # Information in a request
 
