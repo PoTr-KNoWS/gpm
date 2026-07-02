@@ -27,11 +27,10 @@ jobs:
         with:
           tinytex: true
 
-      - name: Render Quarto Project
+      - name: Render project
         uses: quarto-dev/quarto-actions/render@v2
         with:
-          to: html
-          path: ./
+          to: all
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
