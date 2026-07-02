@@ -1,0 +1,5 @@
+
+# Generalized Policy Management
+
+- [Paper](paper/index.pdf)
+- [Specification](spec/index.html)

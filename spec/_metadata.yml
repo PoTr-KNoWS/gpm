@@ -5,4 +5,6 @@ format:
 
   html:
 
+    css: style.scss
+    embed-resources: true
     number-sections: true

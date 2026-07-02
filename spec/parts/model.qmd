@@ -1,0 +1,247 @@
+
+## Policy Request Model
+
+<!-- ::: {.callout-note collapse="true"} -->
+
+...
+
+
+### Roles
+
+...
+
+#### Parties
+
+A <dfn>Party</dfn> is a person capable of fulfilling a legal role -- bearing its responsibilities -- with respect to a policy or related operations.
+
+`@id` <!-- alias `(u|p)id` ? `identifier` ? -->
+: [RECOMMENDED]{.spec} IRI. An identifier of the Party.
+
+  ::: {.callout-note collapse=true}
+  # Mappings
+  *none* (implicit in mapping of legal roles)
+  :::
+
+`rdf:type` <!-- alias `format` ? -->
+: [RECOMMENDED]{.spec} IRI. The type of the Party. <!-- This determines the format of this object, i.e., how its parameters are to be interpreted. -->
+
+  ::: {.callout-note collapse=true}
+  # Mappings
+  *none* (implicit in mapping of legal roles)
+  :::
+
+`credential`
+: [RECOMMENDED]{.spec} Assertion. An identifier or (formatted) assertion about the Party.
+
+  ::: {.callout-note collapse=true}
+  # Mappings
+  - GNAP: `...("user.sub_ids[*]")` (pairs of `format` and `id`; opt.)
+  - GNAP: `...("user.assertions[*]")` (pairs of `format` and `value`; opt.)
+  - RFC....: `...("assertion")` (...??; opt.)
+  :::
+
+  <!-- # String values are interpreted as the `value` of an Assertion with the `uri` format, unless a more specific format can unambiguously be derived from the structure of the string or the key used to link them:
+  # - The keys `pid` & `consumerPid` indicate the format `dspace:consumerPid`. -->
+
+  `format`
+  : [RECOMMENDED]{.spec} [UNIQUE]{.spec} IRI. The format of the identifier or assertion.
+
+  ::: {.callout-note collapse=true}
+  # Mappings
+  - GNAP: <!-- strings -->
+    - `...("user.sub_ids[*].format")` (req. unique)
+    - `...("user.assertions[*].format")` (req. unique)
+  :::
+
+  `value`
+  : [REQUIRED]{.spec} [UNIQUE]{.spec} ... (Any). The value of the identifier or assertion.
+
+  ::: {.callout-note collapse=true}
+  # Mappings
+  - GNAP: <!-- strings -->
+    - `...("user.sub_ide[*].id")` (req. unique)
+    - `...("user.assertions[*].value")` (req. unique)
+  :::
+
+#### Agents
+
+An <dfn>Agent</dfn> is an application capable of fulfilling a technical role, with respect to a policy or related operations, on behalf of and under the responsibility of a Party.
+
+
+### Operations
+
+An <dfn>Operation</dfn> is the event to which a rule applies. It comprises the following information.
+
+`@id` <!-- alias `(u)id` ? `identifier` ? -->
+: [RECOMMENDED]{.spec}] `IRI[]`. An identifier of the operation.
+
+  ::: {.callout-note collapse=true}
+  # Mappings
+    - Data Spaces: `iri("offer.@id")` (absent if derived from dataset; opt. unique)
+    - ODRL (Policy): `iri("uid")` (req. unique)
+  :::
+
+`rdf:type` <!-- alias `format` ? -->
+: [RECOMMENDED]{.spec} `IRI[]`. The type of the operation. <!-- This determines the format of this object, i.e., how its parameters are to be interpreted. -->
+
+  ::: {.callout-note collapse=true}
+  # Mappings
+    - GNAP: `iri("access_token.access[].type")` (req.)
+    - OAuth, RAR: `iri("authorization_details[*].type")` (req.)
+  :::
+
+`target` <!-- alias `asset` ? `resource` ? -->
+: [RECOMMENDED]{.spec} `Asset[]` <!-- (or AssetCollection) -->. The asset(s) targeted by the operation.
+
+  ::: {.callout-note collapse=true}
+  # Mappings
+    - RI: `Assets("resource")` (req. unique)
+    - UMA: `Assets("resource_id")` (req. unique; in ticket)
+    - RAR: `Assets("authorization_details[*].identifier"`) (opt. unique)
+    - GNAP: `Assets("access_token.access[*].identifier")` (opt. unique)
+    <!-- - RAR: `Assets("authorization_details[*].location"`) (opt. unique) -->
+    <!-- - GNAP: `Assets("access_token.access[*].location")` (opt. unique) -->
+    - Data Spaces (absent if derived from dataset):
+      - `Assets("offer.target")` (shared; opt. unique)
+    - ODRL (Policy):
+      - `Assets("target")` (shared short; opt. unique)
+      - `Assets("target.uid")` (shared; opt. unique)
+      - `Assets("<rule>[*].target")` (short; opt. unique)
+      - `Assets("<rule>[*].target.uid")` (req. unique)
+    - OIDC:
+      - `Assets("claims.id_token")` (opt.)
+      - `Assets("claims.userinfo")` (opt.)
+    - OpenID4VCI:
+      - `Assets("credential_configuration_id")` (req. unique)
+      - `Assets("authorization_details[*].claims[*]")` (opt.)
+    - OpenID4VP:
+      - `Assets("dcql_query.credentials[*]")` (opt.)
+      - `Assets("dcql_query.credentials[*].claims[*]")` (opt.)
+  :::
+
+`action`
+: [RECOMMENDED]{.spec} `Action[]`. The action(s) that the operation would perform.
+
+  ::: {.callout-note collapse=true}
+  # Mappings
+    - OAuth: `Actions("scope")` (opt. unique)
+    - UMA: `Actions("resource_scopes")` (req. unique; in ticket)
+    - RAR:
+      - `Actions("authorization_details[*].actions")` (opt. unique)
+      - `Actions("authorization_details[*].privileges")` (opt. unique)
+      - `Actions("authorization_details[*].datatypes")` (opt. unique)
+    - GNAP:
+      - `Actions("access_token.access[*].actions")` (opt. unique)
+      - `Actions("access_token.access[*].privileges")` (opt. unique)
+      - `Actions("access_token.access[*].datatypes")` (opt. unique)
+    - Data Spaces (absent if derived from dataset):
+      - `Actions("offer.<rule>[*].action")` (opt. unique)
+    - ODRL (Policy):
+      - `Actions("action")` (shared short; opt. unique)
+      - `Actions("action.uid")` (shared; opt. unique)
+      - `Actions("<rule>.action")` (short; opt. unique)
+      - `Actions("<rule>.action.uid")` (req. unique)
+    - OIDC, OpenID4VCI, OpenID4VP: `static({ @id: "openid:read" })`
+  :::
+
+`actor` <!-- alias `assignee` ? `consumer` ?  `user` ? -->
+: [RECOMMENDED]{.spec} `Party[]`. The parties to whom authorized operations are assigned.
+
+  ::: {.callout-note collapse=true}
+  # Mappings
+  - TE: `Parties("actor_token")` (req. unique) <!-- IS A TOKEN !! -->
+  - ODRL: `Parties("<rule>.assignee")` (opt. unique)
+  :::
+
+`agent`
+: [RECOMMENDED]{.spec} `Agent[]`. The software instances that will execute an operation of this rule on behalf of an Actor. <!-- including the client application making the initial request ? -->
+
+  ::: {.callout-note collapse=true}
+  # Mappings
+  - CM: `Agents("client_uri")` (req. unique)
+  - OAuth: `Agents("client_id")` (req. unique)
+  - UMA: `Agents("client_id")` (req. unique)
+  - GNAP: `Agents("client")` (req. unique)
+  :::
+
+# Policies
+
+...
+
+The following roles are defined as properties of policies.
+
+`subject`
+: [RECOMMENDED]{.spec} [UNIQUE]{.spec} `Party`. The party on whose behalf the authorization is requested. They bear the ultimate responsibility for adherence to an eventual agreement. If the request contains operations without explicit actor, the subject is held to be the actor.
+
+  ::: {.callout-note collapse=true}
+  # Mappings
+  - TE: `Party("subject_token")` (opt. unique) <!-- IS A TOKEN !! -->
+  - GNAP: `Party("user")` (opt. unique)
+  - ODRL: `Party("assignee")` (opt. unique)
+  - DataSpaces: `Party("consumerPid")` (request; req. unique)
+  :::
+
+`owner`
+: [RECOMMENDED]{.spec} [UNIQUE]{.spec} `Party`. The party on whose behalf the authorization is ultimately assigned. If the request contains no explicit owner, the controller is held to be the owner.
+
+  ::: {.callout-note collapse=true}
+  # Mappings
+  *none* (existing specifications only support direct control)
+  :::
+
+`controller` <!-- alias `assigner` ? `provider` ? -->
+: [RECOMMENDED]{.spec} [UNIQUE]{.spec} `Party`. The party who assigns the authorized operation(s).
+
+  ::: {.callout-note collapse=true}
+  # Mappings
+  - ODRL: `Party("assigner")` (req. unique)
+  - DataSpaces: `Party("providerPid")` (req. unique)
+  :::
+
+
+
+
+---
+
++-------------+-------------------------------+-------------------------------+
+|    Spec.    |            Target             |             Scope             |
++=============+===============================+===============================+
+| OAuth 2.x   | /                             | `scope`                       |
++-------------+-------------------------------+-------------------------------+
+| ~ RI        | `resource`                    | /                             |
++-------------+-------------------------------+-------------------------------+
+| ~ UMA       | `resource_id` (ticket)        | `resource_scopes` (ticket)    |
++-------------+-------------------------------+-------------------------------+
+| ~ RAR       | `authorization_details[]`<br> | `authorization_details[]`<br> |
+|             | \ `.identifier`<br>           | \ `.actions`                  |
+|             | \ `.location`<br>             | \ `.privileges`<br>           |
+|             |                               | \ `.datatypes`<br>            |
++-------------+-------------------------------+-------------------------------+
+| GNAP        | `access_token.access[]`<br>   | `access_token.access[]`<br>   |
+|             | \ `.identifier`<br>           | \ `.actions`<br>              |
+|             | \ `.location`                 | \ `.privileges`<br>           |
+|             |                               | \ `.datatypes`                |
++-------------+-------------------------------+-------------------------------+
+| ODRL        | `permission[].target`         | `permission[].action`         |
++-------------+-------------------------------+-------------------------------+
+| Data Spaces | `offer.permission[].target`   | `offer.permission[].action`   |
++-------------+-------------------------------+-------------------------------+
+| OIDC        | `claims.id_token.[key]`<br>   | /                             |
+|             | `claims.userinfo.[key]`<br>   |                               |
+|             | \ `.essential`<br>            |                               |
+|             | \ `.values[]`<br>             |                               |
+|             | \ `.value`                    |                               |
++-------------+-------------------------------+-------------------------------+
+| OpenID4VCI  | `authorization_details[]`<br> | /                             |
+|             | \ `.cred..._conf..._id`<br>   |                               |
+|             | \ `.claims[]`<br>             |                               |
+|             | \ \ \ \ `.path[]`<br>         |                               |
+|             | \ \ \ \ `.mandatory`          |                               |
++-------------+-------------------------------+-------------------------------+
+| OpenID4VP   | `dcql_query`<br>              | /                             |
+|             | \ `.credentials[]`<br>        |                               |
+|             | \ \ \ \ `.claims[]`<br>       |                               |
+|             | \ \ \ \ \ \ \ \ `.path[]`<br> |                               |
+|             | \ \ \ \ \ \ \ \ `.values[]`   |                               |
++-------------+-------------------------------+-------------------------------+
+: Syntax for specifying the target and scope of an authorization request. {#tbl-target-scope}

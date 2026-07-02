@@ -1,0 +1,34 @@
+
+## Introduction {-}
+
+Over the past two decades, several open authentication and authorization frameworks for the Web have been conceived, and matured into widely-used standards, including XACML (3.0), OAuth (2.0) and OpenID Connect (2.0). However, after years of patchwork, an overload of extensions, and multiple attempted evolutions -- OAuth 2.1, the Grant Negotiation and Authorization Protocol, OpenID's specifications around Digital Credential, multiple Data Spaces approaches -- their age has begun to show:
+
+  - While some of these alternatives are somewhat compatible from afar, most are far from interoperable.
+  - Many of them fail to adhere to basic principles of Web standards, such as the orthogonality between authentication and authorization.
+  - Few of them establish a link with personal digital rights in contemporary legislation.
+  - With the exception of certain approaches to Data Spaces, none of them takes into account the current emphasis on *usage*, rather than mere *access* control.
+
+Rather than providing yet another alternative to these historical behemoths and their more recent competitors, this specification builds on top of them, by
+
+  - extracting the shared core of information from the different messages passed within each of these frameworks;
+  - aggregating the less common aspects that are unique to one or more of them;
+  - constructing a generalized model that encompasses both kinds of data;
+  - providing mappings between the proposed model and each of the existing frameworks; and
+  - binding similar steps in the protocols to their counterpart in an generic, abstract flow.
+
+
+## Terminology
+
+...
+
+---
+---
+
+{{< include parts/model.qmd >}}
+
+<style>
+.spec {
+  font-variant: small-caps;
+  color: darkred;
+}
+</style>

@@ -2,3 +2,43 @@
 project:
 
   title: Generalized Policy Management
+
+  output-dir: out
+  lib-dir: out/lib
+
+  render: [ "**/*.qmd" ]
+
+resource-path: [ assets ]
+
+from: | # input format (reader)
+  markdown
+  +abbreviations
+  +all_symbols_escapable
+  +auto_identifiers
+  +autolink_bare_uris
+  +backtick_code_blocks
+  +bracketed_spans
+  +definition_lists
+  +emoji
+  +escaped_line_breaks
+  +fenced_code_attributes
+  +fenced_divs
+  +footnotes
+  +header_attributes
+  +implicit_figures
+  +implicit_header_references
+  +inline_code_attributes
+  +line_blocks
+  +link_attributes
+  +multiline_tables
+  +pipe_tables
+  +raw_html
+  +raw_tex
+  +smart
+  +strikeout
+  +subscript
+  +superscript
+  +table_captions
+  +task_lists
+  +tex_math_dollars
+  +yaml_metadata_block
